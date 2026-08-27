@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>anyserver · 装机向导</title>
+<style>
+/* ─────────────────────────────────────────────────────────
+   蓝图美学：深底、细网格、等宽字为主、直角、锐利。
+   全部用系统字体栈 —— 这个文件要能离线双击打开。
+   ───────────────────────────────────────────────────────── */
+:root{
+  --ink:#070b0f; --panel:#0d141c; --panel-2:#111b25;
+  --line:#1d2c3a; --line-hot:#2b455c;
+  --fg:#c9d8e4; --fg-dim:#7d94a6; --fg-faint:#4d6274;
+  --amber:#e8a33d; --amber-dim:#8a6224;
+  --cyan:#5ecfd6; --rose:#e2685f; --green:#6fbf82;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace;
+  --cjk:"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC",
+        "Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink); color:var(--fg);
+  font-family:var(--mono),var(--cjk); font-size:15px; line-height:1.7;
+  min-height:100vh; padding:0 0 120px;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:44px 44px; background-position:-1px -1px;
+}
+body::before{ /* 渐晕，让网格往边缘淡出 */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 90% 70% at 50% 0%,transparent 20%,var(--ink) 78%);
+}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 20px}
+
+/* ── 页眉 ── */
+header{padding:52px 0 30px;border-bottom:1px solid var(--line-hot)}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font-size:30px;letter-spacing:.24em;font-weight:600;text-transform:uppercase}
+h1 .dim{color:var(--amber)}
+.tag{font-size:12px;color:var(--fg-faint);letter-spacing:.18em}
+.lede{margin-top:14px;font-family:var(--cjk);color:var(--fg-dim);max-width:60ch;font-size:14px}
+
+/* ── 进度 ── */
+.prog{display:flex;gap:6px;margin-top:26px;align-items:center}
+.seg{height:3px;flex:1;background:var(--line);position:relative;overflow:hidden}
+.seg.on{background:var(--amber)}
+.seg.cur::after{content:"";position:absolute;inset:0;background:var(--cyan);
+  animation:sweep 1.6s ease-in-out infinite}
+@keyframes sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.prog-n{font-size:12px;color:var(--fg-faint);letter-spacing:.14em;white-space:nowrap}
+
+/* ── 步骤 ── */
+.step{display:none;padding:40px 0 0}
+.step.on{display:block;animation:rise .45s cubic-bezier(.2,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.step > *{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
+.step > *:nth-child(1){animation-delay:.02s}
+.step > *:nth-child(2){animation-delay:.06s}
+.step > *:nth-child(3){animation-delay:.10s}
+.step > *:nth-child(4){animation-delay:.14s}
+.step > *:nth-child(5){animation-delay:.18s}
+
+h2{font-size:13px;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;
+   margin-bottom:6px}
+h2 + .sub{font-family:var(--cjk);color:var(--fg-dim);font-size:14px;margin-bottom:22px;
+  max-width:62ch}
+.q{margin:34px 0}
+.q > .label{font-family:var(--cjk);font-size:15px;font-weight:600;margin-bottom:4px;
+  display:flex;gap:10px;align-items:baseline}
+.q > .label .idx{font-family:var(--mono);font-size:11px;color:var(--fg-faint);
+  letter-spacing:.1em}
+.q > .hint{font-family:var(--cjk);font-size:13px;color:var(--fg-faint);margin-bottom:14px;
+  max-width:62ch}
+
+/* ── 选项 ── */
+.opts{display:grid;gap:8px}
+.opts.cols{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.opt{
+  position:relative;border:1px solid var(--line-hot);background:var(--panel);
+  padding:13px 15px 13px 42px;cursor:pointer;transition:.16s;font-family:var(--cjk);
+  font-size:14px;user-select:none;
+}
+.opt:hover{border-color:var(--amber-dim);background:var(--panel-2)}
+.opt::before{ /* 方框标记 */
+  content:"";position:absolute;left:15px;top:16px;width:12px;height:12px;
+  border:1px solid var(--line-hot);transition:.16s;
+}
+.opt.sel{border-color:var(--amber);background:var(--panel-2)}
+.opt.sel::before{background:var(--amber);border-color:var(--amber);
+  box-shadow:0 0 0 2px var(--ink) inset}
+.opt .note{display:block;color:var(--fg-faint);font-size:12.5px;margin-top:3px;line-height:1.5}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+
+/* ── 服务卡 ── */
+.svc{
+  position:relative;border:1px solid var(--line-hot);background:var(--panel);
+  padding:16px 18px 16px 44px;cursor:pointer;transition:.16s;
+}
+.svc:hover{border-color:var(--amber-dim);background:var(--panel-2)}
+.svc.sel{border-color:var(--amber);background:var(--panel-2)}
+.svc::before{content:"";position:absolute;left:17px;top:21px;width:12px;height:12px;
+  border:1px solid var(--line-hot);transition:.16s}
+.svc.sel::before{background:var(--amber);border-color:var(--amber);
+  box-shadow:0 0 0 2px var(--ink) inset}
+.svc h3{font-size:15px;font-family:var(--cjk);font-weight:600;display:flex;
+  gap:10px;align-items:baseline;flex-wrap:wrap}
+.svc .sum{color:var(--cyan);font-size:12.5px;font-family:var(--cjk);font-weight:400}
+.svc .blurb{font-family:var(--cjk);color:var(--fg-dim);font-size:13.5px;margin-top:8px;
+  line-height:1.72;white-space:pre-line}
+.svc .blurb strong{color:var(--fg)}
+.badges{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.badge{font-size:10.5px;letter-spacing:.1em;padding:2px 7px;border:1px solid var(--line-hot);
+  color:var(--fg-faint);text-transform:uppercase}
+.badge.warn{color:var(--amber);border-color:var(--amber-dim)}
+.badge.risk{color:var(--rose);border-color:var(--rose)}
+.cat-head{font-size:11px;letter-spacing:.2em;color:var(--fg-faint);
+  margin:30px 0 10px;text-transform:uppercase;border-bottom:1px solid var(--line);
+  padding-bottom:6px}
+.svcs{display:grid;gap:8px}
+
+/* ── 导航 ── */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;
+  background:linear-gradient(transparent,var(--ink) 32%);padding:34px 20px 22px}
+.nav-in{max-width:880px;margin:0 auto;display:flex;gap:10px;justify-content:space-between;
+  align-items:center}
+button{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:12px 24px;border:1px solid var(--line-hot);background:var(--panel);color:var(--fg);
+  cursor:pointer;transition:.16s}
+button:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}
+button:disabled{opacity:.32;cursor:not-allowed}
+button.go{background:var(--amber);color:var(--ink);border-color:var(--amber);font-weight:700}
+button.go:hover:not(:disabled){background:var(--cyan);border-color:var(--cyan);color:var(--ink)}
+.count{font-size:12px;color:var(--fg-faint);letter-spacing:.1em}
+
+/* ── 结果 ── */
+.sheet{border:1px solid var(--amber-dim);background:var(--panel);margin-top:18px}
+.sheet-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:11px 15px;border-bottom:1px solid var(--line-hot);background:var(--panel-2);
+  flex-wrap:wrap}
+.sheet-bar span{font-size:11px;letter-spacing:.16em;color:var(--fg-faint)}
+.sheet pre{padding:20px;overflow-x:auto;font-size:12.5px;line-height:1.68;
+  white-space:pre;color:var(--fg)}
+.mini{padding:7px 14px;font-size:11px}
+.callout{border-left:2px solid var(--amber);background:var(--panel);padding:14px 18px;
+  font-family:var(--cjk);font-size:13.5px;color:var(--fg-dim);margin:22px 0;line-height:1.75}
+.callout b{color:var(--amber);font-weight:600}
+footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--fg-faint);letter-spacing:.08em;display:flex;
+  justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:560px){
+  h1{font-size:22px} body{font-size:14px}
+  .opt,.svc{padding-left:38px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>any<span class="dim">server</span></h1>
+      <span class="tag">装机向导 · SETUP WIZARD</span>
+    </div>
+    <p class="lede">回答几个问题，生成一份<b>装机清单</b>。把清单连同这个仓库一起交给你的 AI 助手，
+      它会照着清单和手册动手。<b>这里不会改动你的任何设备。</b></p>
+    <div class="prog">
+      <div class="seg" data-s="0"></div><div class="seg" data-s="1"></div>
+      <div class="seg" data-s="2"></div><div class="seg" data-s="3"></div>
+      <span class="prog-n" id="progn">01 / 04</span>
+    </div>
+  </header>
+
+  <section class="step on" data-step="0">
+    <h2>Step 01 — 你有什么，想干什么</h2>
+    <p class="sub">先划定范围。不确定的先跳过，后面你的 AI 助手会实地探测确认。</p>
+    <div class="q" id="q-dev"></div>
+    <div class="q" id="q-os" style="display:none"></div>
+    <div class="q" id="q-goal"></div>
+  </section>
+
+  <section class="step" data-step="1">
+    <h2>Step 02 — 挑服务</h2>
+    <p class="sub">按上一步的目标筛过了。每个都写了「它是什么、解决什么问题」——
+      挑你真的想用的，<b>不必全选</b>，每个服务都是以后要维护的东西。</p>
+    <div id="svc-list"></div>
+    <div class="callout" id="cap-note" style="display:none"></div>
+  </section>
+
+  <section class="step" data-step="2">
+    <h2>Step 03 — 关键约束</h2>
+    <p class="sub">这几个问题探测不出来，只有你知道。答「不确定」也行——
+      清单里会标成待确认，交给 AI 助手去查。</p>
+    <div id="con-list"></div>
+  </section>
+
+  <section class="step" data-step="3">
+    <h2>装机清单已生成</h2>
+    <p class="sub">复制下面全部内容，连同 anyserver 仓库一起交给你的 AI 助手。
+      让它<b>先读仓库根目录的 AGENTS.md</b>，再照这份清单开工。</p>
+    <div class="callout">
+      <b>它不会一口气装完。</b>清单里标了 <b>⚠ 问我</b> 的步骤，助手必须停下来问你——
+      那些是改错了会全家断网、或者会擦掉硬盘的操作。
+    </div>
+    <div class="sheet">
+      <div class="sheet-bar">
+        <span>装机清单 · BUILD SHEET</span>
+        <div style="display:flex;gap:8px">
+          <button class="mini" id="copy">复制</button>
+          <button class="mini" id="dl">下载 .md</button>
+        </div>
+      </div>
+      <pre id="sheet"></pre>
+    </div>
+  </section>
+
+  <footer>
+    <span id="ftr">anyserver</span>
+    <span>本页不联网 · 不上传任何信息</span>
+  </footer>
+</div>
+
+<div class="nav"><div class="nav-in">
+  <button id="back" disabled>← 上一步</button>
+  <span class="count" id="cnt"></span>
+  <button id="next" class="go">下一步 →</button>
+</div></div>
+
+<script>
+/*__CATALOG__*/
+
+/* ═══ 状态 ═══ */
+const S = { step:0, dev:[], os:null, goals:[], svcs:[], con:{} };
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ═══ 题库 ═══
+   注意：向导只收集【事实】，不做判断。
+   "exFAT 能不能跑数据库"这类判据留在手册里，由 AI 助手读手册决定。 */
+const DEVICES = [
+  ["laptop","闲置笔记本","放着不用的旧本，自带电池相当于自带 UPS"],
+  ["mini","迷你主机 / 小主机","低功耗常开，最省心的形态"],
+  ["nas","NAS","已经是存储设备，常年开机"],
+  ["desktop","台式机","性能足，但通常更费电"],
+  ["sbc","树莓派一类单板","省电，但性能和扩展性有限"],
+  ["none","什么都没有","也是合法答案——清单会告诉你最低需要什么"],
+];
+const OSES = [
+  ["windows","Windows","要装服务通常得重装成 Linux，或者用它的 Linux 子系统"],
+  ["macos","macOS","可以直接用"],
+  ["linux","Linux","最顺的路径"],
+  ["unknown","不确定 / 现在是空的",""],
+];
+const CONSTRAINTS = [
+  { id:"router_static", always:true, label:"主路由能不能给设备绑定固定 IP？",
+    hint:"服务器地址不稳定，手机 App 里填的地址过几天就失效了。路由器管理页里通常叫「静态 IP / DHCP 保留 / MAC 绑定」。",
+    opts:[["yes","能"],["no","不能"],["unknown","不确定"]] },
+  { id:"always_on", always:true, label:"这台机器平时是常开，还是会关机 / 睡眠？",
+    hint:"它睡着时，手机照片传不上去、定时任务不会补跑。笔记本要特别注意合盖会不会睡。",
+    opts:[["always","常年开着"],["sleep","会睡眠 / 合盖就睡"],["off","用完就关"],["unknown","不确定"]] },
+  { id:"hard_clients", always:true, label:"家里有电视、机顶盒或安卓设备要访问这些服务吗？",
+    hint:"这决定内网怎么起名字。这类设备大多不支持 .local 自动发现，只认 DNS。",
+    opts:[["yes","有"],["no","只有电脑和手机"],["unknown","不确定"]] },
+  { id:"domain", always:true, label:"你有自己的域名吗？",
+    hint:"有的话，内网用它的子域最省事——既不会和公网冲突，又能签真证书（内网上 HTTPS 需要它）。",
+    opts:[["yes","有"],["no","没有"],["unknown","不知道算不算"]] },
+  { id:"disks", multi:true, when:s=>s.svcs.length>0,
+    label:"你有哪些盘可以用？",
+    hint:"可多选。数据库和照片原图对盘的要求完全不同，助手会照手册的判据分开安置。",
+    opts:[["internal","机器内置盘"],["usb-portable","外接移动硬盘"],
+          ["das-enclosure","外接硬盘柜（多盘位、独立供电）"],["nas","另一台 NAS（网络挂载）"]] },
+  { id:"wan", when:s=>s.goals.includes("从外网访问"),
+    label:"路由器的 WAN 口拿到的是公网 IP 吗？",
+    hint:"在路由器状态页看 WAN 地址。以 100.64–100.127、10.、172.16–172.31、192.168 开头的都是运营商大内网，那样端口转发行不通。",
+    opts:[["public","是公网 IP"],["cgnat","是大内网"],["unknown","不确定"]] },
+  { id:"noproxy_dev", when:s=>s.goals.includes("旁路由 / 全屋代理"),
+    label:"有装不了客户端代理的设备要走代理吗？",
+    hint:"电视、游戏机、投影、IoT 这些设备本身装不了软件——这是旁路由唯一不可替代的场景。如果只有电脑和手机，各自装客户端更简单也更稳。",
+    opts:[["yes","有（电视 / 游戏机 / IoT）"],["no","只有电脑和手机"],["unknown","不确定"]] },
+  { id:"scope", when:s=>s.goals.includes("旁路由 / 全屋代理"),
+    label:"想让谁走旁路由？",
+    hint:"全屋接管意味着旁路由变成单点故障——它一挂，全家断网，包括不在乎代理的人。",
+    opts:[["few","几台指定设备"],["all","全屋默认"],["unknown","还没想好"]] },
+];
+
+/* ═══ 渲染 ═══ */
+function optHTML(v,label,note,sel){
+  return `<label class="opt${sel?" sel":""}" data-v="${v}">${label}
+    ${note?`<span class="note">${note}</span>`:""}</label>`;
+}
+function renderStep1(){
+  $("#q-dev").innerHTML = `<div class="label"><span class="idx">01</span>你打算用什么机器？</div>
+    <div class="hint">可多选。手上有几台就选几台，助手会帮你决定哪台干什么。</div>
+    <div class="opts cols">${DEVICES.map(d=>optHTML(d[0],d[1],d[2],S.dev.includes(d[0]))).join("")}</div>`;
+  $("#q-os").innerHTML = `<div class="label"><span class="idx">01b</span>那台机器现在装的是什么系统？</div>
+    <div class="hint">如果是 Windows，多半要重装——那会擦掉盘上的数据，所以助手一定会先问你。</div>
+    <div class="opts cols">${OSES.map(o=>optHTML(o[0],o[1],o[2],S.os===o[0])).join("")}</div>`;
+  $("#q-os").style.display = (S.dev.includes("laptop")||S.dev.includes("desktop")) ? "" : "none";
+  $("#q-goal").innerHTML = `<div class="label"><span class="idx">02</span>想用它实现什么？</div>
+    <div class="hint">可多选。不确定的先不选，第二步看到具体服务时会更清楚。</div>
+    <div class="opts cols">${CATALOG.goals.map(g=>optHTML(g,g,"",S.goals.includes(g))).join("")}</div>`;
+}
+const CAT_CN = {media:"影音与相册",photos:"相册",files:"文件",download:"下载",
+  home:"智能家居",privacy:"隐私",remote:"远程",ai:"AI",web:"建站",tools:"小工具",infra:"基础设施"};
+
+function pickedServices(){
+  if(!S.goals.length) return CATALOG.services;
+  const hit = CATALOG.services.filter(s=>s.goals.some(g=>S.goals.includes(g)));
+  return hit.length ? hit : CATALOG.services;
+}
+function renderStep2(){
+  const list = pickedServices(), byCat = {};
+  list.forEach(s=>(byCat[s.category] ||= []).push(s));
+  const order = ["media","photos","files","download","home","privacy","remote","web","tools","infra"];
+  $("#svc-list").innerHTML = order.filter(c=>byCat[c]).map(c=>`
+    <div class="cat-head">${CAT_CN[c]||c}</div>
+    <div class="svcs">${byCat[c].sort((a,b)=>a.priority.localeCompare(b.priority)).map(s=>`
+      <label class="svc${S.svcs.includes(s.id)?" sel":""}" data-v="${s.id}">
+        <h3>${s.name}<span class="sum">${s.summary}</span></h3>
+        <div class="blurb">${s.blurb}</div>
+        <div class="badges">
+          ${s.needs_human?'<span class="badge warn">需要你拍板</span>':""}
+          ${s.risk==="high"?'<span class="badge risk">高风险</span>':""}
+          ${s.docs.length?`<span class="badge">${s.docs.length} 篇官方文档</span>`:""}
+        </div>
+      </label>`).join("")}</div>`).join("");
+
+  const caps = [
+    ...CATALOG.layers.filter(l=>l.goals?.some(g=>S.goals.includes(g))).map(l=>`层 ${l.layer}`),
+    ...CATALOG.chapters.filter(c=>c.goals.some(g=>S.goals.includes(g))).map(c=>c.name),
+  ];
+  const el = $("#cap-note");
+  if(caps.length){
+    el.style.display="";
+    el.innerHTML = `<b>另外还会包含：</b>${caps.join(" · ")}。
+      这些不是「服务」，是手册里对应的章节——你选的目标需要它们，清单里会一并列出。`;
+  } else el.style.display="none";
+}
+function activeConstraints(){ return CONSTRAINTS.filter(c=>c.always||(c.when&&c.when(S))); }
+function renderStep3(){
+  $("#con-list").innerHTML = activeConstraints().map((c,i)=>`
+    <div class="q" data-con="${c.id}">
+      <div class="label"><span class="idx">${String(i+1).padStart(2,"0")}</span>${c.label}</div>
+      <div class="hint">${c.hint}</div>
+      <div class="opts cols">${c.opts.map(o=>{
+        const cur=S.con[c.id]; const sel = c.multi ? (cur||[]).includes(o[0]) : cur===o[0];
+        return optHTML(o[0],o[1],"",sel);}).join("")}</div>
+    </div>`).join("");
+}
+
+/* ═══ 生成装机清单 ═══ */
+function vector(){
+  const v = {};
+  v.arch = "⟨待实测⟩";
+  v.substrate = S.dev.includes("none") ? "[none]" : "⟨待实测：能不能跑虚拟机⟩";
+  const wantsGw = S.goals.includes("旁路由 / 全屋代理");
+  v.gateway = !wantsGw ? "none"
+    : S.con.noproxy_dev==="no" ? "client-only"
+    : S.con.noproxy_dev==="yes" ? "⟨待定：见层 2⟩" : "⟨待确认⟩";
+  v.proxy = !wantsGw ? "none" : "⟨待定：按订阅格式选，见层 3⟩";
+  v.storage = (S.con.disks?.length) ? "["+S.con.disks.join(", ")+"]" : "⟨待确认⟩";
+  v.addressing = S.con.hard_clients==="yes" ? "[ip-static, lan-dns]"
+    : S.con.hard_clients==="no" ? "[ip-static]  ⟨可加 mdns⟩" : "⟨待确认⟩";
+  v.ingress = !S.goals.includes("从外网访问") ? "none"
+    : S.con.wan==="cgnat" ? "⟨tailscale 或 tunnel —— 大内网做不了端口转发⟩"
+    : "⟨待定：见层 6⟩";
+  return v;
+}
+function buildSheet(){
+  const now = new Date().toISOString().slice(0,10);
+  const chosen = CATALOG.services.filter(s=>S.svcs.includes(s.id));
+  const v = vector();
+  const L=[];
+  L.push(`# 装机清单 · anyserver`);
+  L.push(``,`生成于 ${now} · 基于手册 ${CATALOG.commit}`);
+  L.push(``,`> 这份清单是【向导问卷的产物】，记录的是用户的回答，**不含任何技术判据**。`);
+  L.push(`> 判据全部在手册里。请先读仓库根目录的 \`AGENTS.md\`，再照本清单开工。`);
+  L.push(``,`---`,``,`## 一、用户告诉我们的`);
+  L.push(``,`- **设备**：${S.dev.map(d=>DEVICES.find(x=>x[0]===d)[1]).join(" · ")||"未填"}`);
+  if(S.os) L.push(`- **当前系统**：${OSES.find(x=>x[0]===S.os)[1]}`);
+  L.push(`- **目标**：${S.goals.join(" · ")||"未填"}`);
+  activeConstraints().forEach(c=>{
+    const a=S.con[c.id]; if(a===undefined) return;
+    const txt = c.multi ? (a||[]).map(x=>c.opts.find(o=>o[0]===x)?.[1]).join(" · ")
+                        : c.opts.find(o=>o[0]===a)?.[1];
+    L.push(`- **${c.label.replace(/[？?]$/,"")}**：${txt||"未答"}`);
+  });
+
+  L.push(``,`## 二、配置向量（部分待实测）`,``,"```yaml");
+  Object.entries(v).forEach(([k,val])=>L.push(`${(k+":").padEnd(12)}${val}`));
+  L.push(`services:   [${chosen.map(s=>s.id).join(", ")||""}]`);
+  L.push("```");
+  L.push(``,`⟨尖括号⟩ 里的是**问卷问不出来的**，需要你实地探测或与用户确认。**不要猜。**`);
+
+  L.push(``,`## 三、动手前先实测这些`,``);
+  L.push(`- [ ] \`uname -srm\` —— 架构与平台 → \`00-probe.md\``);
+  L.push(`- [ ] 能不能跑虚拟机（Linux 看 \`/dev/kvm\`；macOS 看 \`sysctl kern.hv_support\`）`);
+  L.push(`- [ ] 盘的文件系统与总线（\`df -T\` / \`lsblk -o NAME,TRAN\`）→ **决定数据库能落在哪**`);
+  L.push(`- [ ] 网口数量 —— 只有一个网口时，高风险操作必须在能物理接触机器时做`);
+  if(S.goals.includes("从外网访问") && S.con.wan!=="public")
+    L.push(`- [ ] 路由器 WAN 口地址是不是运营商大内网 → 决定层 6 的可选范围`);
+  if(S.con.router_static!=="yes")
+    L.push(`- [ ] 主路由能不能绑定固定 IP —— 不能的话要在机器上配静态并避开 DHCP 池`);
+
+  /* 交叉比对：用户自己的几个回答之间，手册里有没有已知冲突。
+     只指路，不裁决 —— 每条都指向手册对应小节，由助手去读判据。 */
+  const dbSvc = chosen.filter(x=>(x.requires.storage||[]).length);
+  const flags=[];
+  if(S.con.always_on!=="always" && S.goals.includes("旁路由 / 全屋代理"))
+    flags.push(["这台机器会睡眠，同时又要当旁路由",
+      "它睡了，指着它的客户端直接断网。这是硬矛盾，不是可以「以后再说」的事。",
+      "layers/1-substrate.md · ops/boot-persistence.md"]);
+  else if(S.con.always_on!=="always" && chosen.length)
+    flags.push(["这台机器会睡眠，上面却要跑常驻服务",
+      "它睡着时手机照片传不上去、定时任务不会补跑，而且不报错。",
+      "00-probe.md · ops/boot-persistence.md"]);
+  if(S.con.domain==="no" && S.con.hard_clients==="yes")
+    flags.push(["家里有电视/安卓，但你没有自己的域名",
+      "这类设备大多不认 .local，需要局域网 DNS；而没有域名就签不了公开信任的证书。手册对这种情况有专门的后缀建议。",
+      "layers/7-lan-addressing.md"]);
+  if(S.os==="macos" && S.goals.includes("旁路由 / 全屋代理"))
+    flags.push(["macOS 宿主 + 旁路由",
+      "全盘加密会让「未登录状态下旁路由可用」这个承诺给不了；宿主睡眠也会波及全屋。",
+      "blueprints/b-hybrid-mini.md · ops/boot-persistence.md"]);
+  if(S.con.disks && !S.con.disks.includes("internal")
+     && !S.con.disks.includes("das-enclosure") && dbSvc.length)
+    flags.push(["选的服务里有数据库，但没有合格的落点",
+      `${dbSvc.map(x=>x.name).join(" / ")} 需要落在原生文件系统上，而你只有移动硬盘或网络挂载。`,
+      "layers/5-storage.md"]);
+  if(S.os==="windows")
+    flags.push(["机器现在是 Windows",
+      "本手册的主路径要求类 Unix 系统。重装会擦掉盘上现有数据。",
+      "layers/1-substrate.md"]);
+  if(flags.length){
+    L.push(``,`## 四、你的回答之间有这些已知冲突`,``);
+    L.push(`> 这些不是错误，是**手册里记录过的矛盾**。清单不替你裁决——`);
+    L.push(`> 请读对应小节，然后和用户一起决定怎么办。`,``);
+    flags.forEach(([t,why,doc])=>{
+      L.push(`- **${t}**`); L.push(`  ${why}`); L.push(`  → \`${doc}\``);
+    });
+  }
+
+  const humans=[];
+  if(S.os==="windows"||S.os==="unknown") humans.push("**是否重装系统** —— 会擦掉盘上现有数据");
+  humans.push("**在主路由上绑定固定 IP** —— 手册规定不代劳，只告诉用户怎么做");
+  if(S.con.always_on!=="always" && S.goals.includes("旁路由 / 全屋代理"))
+    humans.push("**这台机器的电源策略** —— 要当旁路由就不能睡，得先定下来");
+  if(S.con.scope==="all") humans.push("**把全屋默认网关指向旁路由** —— 改错了全家断网，必须分步走");
+  if(S.con.disks?.includes("usb-portable")) humans.push("**移动硬盘要不要重新格式化** —— 会擦盘");
+  chosen.filter(s=>s.needs_human).forEach(s=>humans.push(`**${s.name}** —— 见 \`${s.doc}\``));
+  L.push(``,`## ${flags.length?"五":"四"}、必须停下来问用户的`,``);
+  humans.forEach(h=>L.push(`- ⚠ ${h}`));
+
+  L.push(``,`## ${flags.length?"六":"五"}、施工序`,``,`> 顺序不是随意的。带 ★ 的有硬性时间约束，做晚了就没机会了。`,``);
+  let n=0; const step=(t,doc,flag)=>L.push(`${++n}. [ ] ${t}${flag?"  "+flag:""}${doc?`  → \`${doc}\``:""}`);
+  step("主机系统与容器运行时就位","layers/1-substrate.md", S.os==="windows"?"⚠ 问我":"");
+  step("服务器固定 IP","layers/2-gateway.md","⚠ 问我");
+  step("★ 定下每个服务的数据落点","layers/5-storage.md","★ 装服务前必须完成");
+  if(S.goals.includes("旁路由 / 全屋代理")){
+    step("旁路由形态与推进顺序（先隔离网络，再桥接）","layers/2-gateway.md","⚠ 问我");
+    step("装代理栈（只装一套）","layers/3-proxy-stack.md");
+    step("分流与 DNS","layers/4-routing-dns.md");
+  }
+  step("内网寻址（服务怎么被访问到）","layers/7-lan-addressing.md");
+  step("★ 拔盘演练","layers/5-storage.md","★ 只有还没有真实数据时做才安全");
+  chosen.forEach(s=>step(`装 ${s.name}`, s.doc, s.needs_human?"⚠ 问我":""));
+  step("开机自恢复","ops/boot-persistence.md");
+  step("真断电，走冷启动验收","ops/cold-start-acceptance.md");
+  step("★ 备份配好并验证过能恢复","ops/backup.md","★ 灌真实数据前必须完成");
+  if(S.goals.includes("从外网访问")) step("公网入口","layers/6-ingress.md","⚠ 问我");
+  if(S.goals.includes("常驻 AI agent")) step("常驻 AI harness","advanced/resident-ai-harness.md");
+  step("这时候才灌真实数据");
+
+  if(chosen.some(s=>s.docs.length)){
+    L.push(``,`## ${flags.length?"七":"六"}、上游文档（省掉一轮检索）`,``);
+    chosen.filter(s=>s.docs.length).forEach(s=>{
+      L.push(`**${s.name}**`);
+      s.docs.forEach(d=>L.push(`- [${d.type==="official"?"官方":"社区"}] ${d.title} — ${d.url}${d.seen?`（抓取于 ${d.seen}）`:""}`));
+      L.push(``);
+    });
+    L.push(`⚠️ 这些链接**未经本次核实**。社区内容尤其要看更新日期——手册里有过一次教训：`);
+    L.push(`一份停更一年多的社区规则集漏掉了关键域名，症状是"用着用着掉登录"。`);
+  }
+  L.push(``,`## ${flags.length?"八":"七"}、出问题了`,``);
+  L.push(`**先查 \`appendix/pitfalls.md\`** —— 那是按【症状】索引的，不是按主题。`);
+  L.push(`那里没有，再放大范围检索。手册里的坑都有一个共同点：**症状不指向真凶**。`);
+  return L.join("\n");
+}
+
+/* ═══ 交互 ═══ */
+function toggle(arr,v){ const i=arr.indexOf(v); i<0?arr.push(v):arr.splice(i,1); return arr; }
+document.addEventListener("click",e=>{
+  const o=e.target.closest(".opt,.svc"); if(!o) return;
+  const v=o.dataset.v, st=S.step;
+  if(st===0){
+    if(o.closest("#q-dev")) toggle(S.dev,v);
+    else if(o.closest("#q-os")) S.os = S.os===v?null:v;
+    else toggle(S.goals,v);
+    renderStep1();
+  } else if(st===1){ toggle(S.svcs,v); renderStep2(); }
+  else if(st===2){
+    const cid=o.closest("[data-con]").dataset.con;
+    const c=CONSTRAINTS.find(x=>x.id===cid);
+    if(c.multi){ S.con[cid]=toggle(S.con[cid]||[],v); }
+    else S.con[cid] = S.con[cid]===v?undefined:v;
+    renderStep3();
+  }
+  sync();
+});
+function sync(){
+  $$(".seg").forEach(s=>{const i=+s.dataset.s;
+    s.classList.toggle("on",i<=S.step); s.classList.toggle("cur",i===S.step);});
+  $("#progn").textContent = String(S.step+1).padStart(2,"0")+" / 04";
+  $("#back").disabled = S.step===0;
+  const nx=$("#next");
+  nx.textContent = S.step===2 ? "生成装机清单 →" : S.step===3 ? "重新开始" : "下一步 →";
+  nx.disabled = (S.step===0 && !S.dev.length && !S.goals.length);
+  const c=$("#cnt");
+  c.textContent = S.step===0 ? (S.goals.length?`已选 ${S.goals.length} 个目标`:"至少选一项")
+    : S.step===1 ? (S.svcs.length?`已选 ${S.svcs.length} 个服务`:"可以一个都不选")
+    : S.step===2 ? `${Object.keys(S.con).length} / ${activeConstraints().length} 已答`
+    : "";
+  $("#ftr").textContent = `anyserver · 手册 ${CATALOG.commit} · ${CATALOG.services.length} 个可选服务`;
+}
+$("#next").onclick=()=>{
+  if(S.step===3){ location.reload(); return; }
+  S.step++;
+  if(S.step===1) renderStep2();
+  if(S.step===2) renderStep3();
+  if(S.step===3) $("#sheet").textContent = buildSheet();
+  $$(".step").forEach(s=>s.classList.toggle("on",+s.dataset.step===S.step));
+  scrollTo({top:0,behavior:"smooth"}); sync();
+};
+$("#back").onclick=()=>{ if(!S.step)return; S.step--;
+  $$(".step").forEach(s=>s.classList.toggle("on",+s.dataset.step===S.step));
+  scrollTo({top:0,behavior:"smooth"}); sync(); };
+$("#copy").onclick=async e=>{
+  try{ await navigator.clipboard.writeText($("#sheet").textContent);
+       e.target.textContent="已复制 ✓"; }
+  catch{ const r=document.createRange(); r.selectNode($("#sheet"));
+         getSelection().removeAllRanges(); getSelection().addRange(r);
+         e.target.textContent="已选中，按 Ctrl/⌘+C"; }
+  setTimeout(()=>e.target.textContent="复制",2400);
+};
+$("#dl").onclick=()=>{
+  const b=new Blob([$("#sheet").textContent],{type:"text/markdown;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download="装机清单.md"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+renderStep1(); sync();
+</script>
+</body>
+</html>

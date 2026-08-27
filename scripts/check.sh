@@ -66,12 +66,17 @@ check_frontmatter() { hdr "frontmatter"; python3 scripts/check_frontmatter.py ||
 # ── 3. 内链 ──────────────────────────────────────────────
 check_links() { hdr "内链"; python3 scripts/check_links.py || FAIL=1; }
 
+# ── 4. catalog 同步 ──────────────────────────────────────
+# wizard 的数据全部由 frontmatter 生成。改了手册忘了重新生成 → 两份漂移。
+check_catalog() { hdr "catalog 同步"; python3 scripts/build-catalog.py --check || FAIL=1; }
+
 case "$MODE" in
   redaction)   check_redaction ;;
   frontmatter) check_frontmatter ;;
   links)       check_links ;;
-  all)         check_redaction; check_frontmatter; check_links ;;
-  *) echo "用法: $0 [redaction|frontmatter|links|all]"; exit 2 ;;
+  catalog)     check_catalog ;;
+  all)         check_redaction; check_frontmatter; check_links; check_catalog ;;
+  *) echo "用法: $0 [redaction|frontmatter|links|catalog|all]"; exit 2 ;;
 esac
 
 echo

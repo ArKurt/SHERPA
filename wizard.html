@@ -230,13 +230,14 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
 <script>
 const CATALOG = {
-  "commit": "39b43b4",
+  "commit": "f06f6ca",
   "goals": [
     "下载",
     "从外网访问",
     "多媒体影音",
     "密码与隐私",
     "常驻 AI agent",
+    "文件同步",
     "旁路由 / 全屋代理",
     "智能家居",
     "照片备份",
@@ -245,6 +246,7 @@ const CATALOG = {
   ],
   "categories": [
     "download",
+    "files",
     "home",
     "media",
     "privacy",
@@ -616,6 +618,44 @@ const CATALOG = {
         }
       ],
       "doc": "services/sunshine-moonlight.md"
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "category": "files",
+      "goals": [
+        "文件同步"
+      ],
+      "summary": "设备之间的点对点文件同步",
+      "blurb": "在几台设备之间保持一个文件夹同步，**不经过任何第三方服务器**，直接点对点传。\n可以理解为「不用付费、不限容量、数据不出门的网盘同步」。\n多人共用一个素材库时，它是手册里唯一能承接这个需求的模块。\n⚠️ 它同步的是「状态」——一端删了另一端也会删。**它不是备份**，别当备份用。",
+      "install_when": "anytime",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "medium",
+      "needs_human": true,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Syncthing 官方文档",
+          "url": "https://docs.syncthing.net/"
+        },
+        {
+          "type": "official",
+          "title": "入门指南（含 GUI 监听地址配置）",
+          "url": "https://docs.syncthing.net/intro/getting-started.html"
+        }
+      ],
+      "doc": "services/syncthing.md"
     },
     {
       "id": "vaultwarden",

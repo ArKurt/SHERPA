@@ -14,9 +14,8 @@ www.home-assistant.io
 aria2.github.io
 github.com
 www.navidrome.org
-docs.searxng.org
 docs.syncthing.net
-gohugo.io
+docs.syncthing.net
 docs.lizardbyte.dev
 moonlight-stream.org
 tailscale.com

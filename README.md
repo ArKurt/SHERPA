@@ -56,7 +56,7 @@ NAS      →  服务器
 | [blueprints/](blueprints/) | **三条参考架构** —— 拿你的向量先来这里对号入座（[快速排除表](blueprints/README.md)） |
 | [services/](services/) | **服务菜单** —— 全部可选，按需挑 |
 | [services/_deployment.md](services/_deployment.md) | 服务怎么摆——目录布局、版本、端口表 |
-| [ops/](ops/) | 开机自恢复、冷启动验收、备份、**凭证**、唤醒、迁移退役 |
+| [ops/](ops/) | 开机自恢复、冷启动验收、备份、凭证、**多人共用与交接**、唤醒、迁移退役 |
 | [advanced/](advanced/) | 常驻 AI harness（可选） |
 | [**pitfalls/**](pitfalls/) | **排障区** —— 出问题了按症状查这里 |
 | [archive/](archive/) | 历史素材，**不是现行方案** |

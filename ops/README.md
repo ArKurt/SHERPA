@@ -8,6 +8,7 @@
 | [cold-start-acceptance.md](cold-start-acceptance.md) | 配完自启动之后，真的断电重启一次 |
 | [backup.md](backup.md) | 灌真实数据**之前** |
 | [secrets.md](secrets.md) | **动手之前**。你会经手订阅链接、API 密钥、SSH 私钥 |
+| [handover.md](handover.md) | **不止你一个人用这台机器时**。多人共用、停机窗口、换人交接 |
 | [wol.md](wol.md) | 想远程唤醒一台平时关着的机器 |
 | [migration-retirement.md](migration-retirement.md) | 换硬件、搬服务、退掉旧机器 |
 

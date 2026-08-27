@@ -1,0 +1,68 @@
+---
+id: syncthing
+name: Syncthing
+layer: service
+install_when: anytime
+category: files
+goals: [文件同步]
+summary: 设备之间的点对点文件同步
+blurb: |
+  在几台设备之间保持一个文件夹同步，**不经过任何第三方服务器**，直接点对点传。
+  可以理解为「不用付费、不限容量、数据不出门的网盘同步」。
+  多人共用一个素材库时，它是手册里唯一能承接这个需求的模块。
+  ⚠️ 它同步的是「状态」——一端删了另一端也会删。**它不是备份**，别当备份用。
+docs:
+  - type: official
+    title: Syncthing 官方文档
+    url: https://docs.syncthing.net/
+  - type: official
+    title: 入门指南（含 GUI 监听地址配置）
+    url: https://docs.syncthing.net/intro/getting-started.html
+requires: {arch: [x86_64, aarch64], substrate: [bare-metal, vm, container]}
+conflicts: []
+risk: medium              # 配错了会双向删除文件
+needs_human: true
+verify: |
+  # ⚠️ Syncthing 的 GUI 默认只监听 127.0.0.1 —— 从别的机器访问会连接被拒。
+  #    先确认 gui.address 已改成 0.0.0.0:8384（或用容器端口映射），否则下面这条
+  #    会给你一个假失败，让你去查网络而不是查配置。
+  curl -s -o /dev/null -w '%{http_code}\n' http://192.0.2.10:8384/
+  # 期望: 200
+  # ★ 真正的验收：两端各建一个文件，确认双向都同步到
+rollback: |
+  docker compose down     # 注意：已同步的删除操作不会因为停服务而撤销
+---
+
+# Syncthing
+
+点对点文件同步，不经过任何服务器。
+
+## 它会双向删除
+
+这是 `needs_human` 的原因：**Syncthing 同步的是"状态"，不是"追加"。**
+一端删了文件，另一端也会删。配错文件夹方向或路径，可能一次性删掉大量数据。
+
+### 上手时的安全做法
+
+1. **先用"仅发送 / 仅接收"模式**，确认方向对了再改双向
+2. **开启版本控制**（保留被删/被改文件的旧版本），这是唯一的后悔药
+3. **先用一个测试文件夹跑通**，再接真实数据
+
+**Syncthing 不是备份。** 它忠实复制你的操作，包括误删。备份要另做。
+
+## 网络
+
+⚠️ **GUI 默认只绑 `127.0.0.1`。** 要从别的机器打开管理界面，
+必须显式改 `gui.address`（或走容器端口映射 / 反向代理）。
+这是新手最常撞的一堵墙，而报错只是"连接被拒绝"，看不出是监听地址的问题。
+
+需要设备间能互相发现和连接。局域网内通常自动就通；跨网络时会用中继服务器
+（慢，但能通）。如果这台机器在旁路由后面，注意它的发现广播和连接端口。
+
+## 存储
+
+同步目录随意。配置和索引数据库放本地盘——索引会随文件数增长。
+
+## 架构
+
+官方发 multi-arch。

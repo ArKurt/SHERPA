@@ -2,7 +2,7 @@
 id: navidrome
 name: Navidrome
 layer: service
-priority: P1
+install_when: anytime
 category: media
 goals: [多媒体影音]
 summary: 自托管的音乐库与流媒体服务

@@ -2,7 +2,7 @@
 id: vaultwarden
 name: Vaultwarden
 layer: service
-priority: P1
+install_when: anytime
 category: privacy
 goals: [密码与隐私]
 summary: 自托管的密码库

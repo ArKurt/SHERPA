@@ -16,9 +16,13 @@
 | [Home Assistant](home-assistant.md) | 本地优先的智能家居中枢 |
 | [Vaultwarden](vaultwarden.md) | 自托管的密码库 ·&nbsp;需你拍板 |
 | [Sunshine + Moonlight](sunshine-moonlight.md) | 低延迟的桌面与游戏串流 ·&nbsp;需你拍板 |
-| [SunPanel](sunpanel.md) | 服务导航面板 |
+| [SunPanel](sunpanel.md) | 服务导航面板 ·&nbsp;等其它服务就位后再装 |
 
 标「需你拍板」的，装之前必须和用户确认——不是难装，是**决定本身**要人来做。
+标「等其它服务就位」的，装早了没意义（导航面板得先有导航对象）。
+
+> **这个顺序不代表推荐度。** 手册不排"你该先装哪个"——
+> 那取决于你想要什么，而不是我们觉得什么重要。
 
 ## 选之前
 

@@ -319,7 +319,8 @@ function renderStep2(){
   const order = ["media","photos","files","download","home","privacy","remote","web","tools","infra"];
   $("#svc-list").innerHTML = order.filter(c=>byCat[c]).map(c=>`
     <div class="cat-head">${CAT_CN[c]||c}</div>
-    <div class="svcs">${byCat[c].sort((a,b)=>a.priority.localeCompare(b.priority)).map(s=>`
+    <div class="svcs">${byCat[c].sort((a,b)=>(a.install_when==='last')-(b.install_when==='last')
+                            || a.name.localeCompare(b.name,'zh')).map(s=>`
       <label class="svc${S.svcs.includes(s.id)?" sel":""}" data-v="${s.id}">
         <h3>${s.name}<span class="sum">${s.summary}</span></h3>
         <div class="blurb">${s.blurb}</div>
@@ -484,7 +485,10 @@ function buildSheet(){
   }
   step("内网寻址（服务怎么被访问到）","layers/7-lan-addressing.md");
   step("★ 拔盘演练","layers/5-storage.md","★ 只有还没有真实数据时做才安全");
-  chosen.forEach(s=>step(`装 ${s.name}`, s.doc, s.needs_human?"⚠ 问我":""));
+  // install_when: last 的排在其它服务之后 —— 比如导航面板要先有导航对象
+  [...chosen].sort((a,b)=>(a.install_when==='last')-(b.install_when==='last'))
+    .forEach(s=>step(`装 ${s.name}`, s.doc,
+      (s.needs_human?"⚠ 问我":"") + (s.install_when==='last'?"（要等其它服务就位）":"")));
   step("开机自恢复","ops/boot-persistence.md");
   step("真断电，走冷启动验收","ops/cold-start-acceptance.md",
        (S.con.scope==="all"||S.con.existing==="some")?"⚠ 问我：需要停机窗口":"");

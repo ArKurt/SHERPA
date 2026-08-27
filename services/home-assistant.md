@@ -2,7 +2,7 @@
 id: home-assistant
 name: Home Assistant
 layer: service
-priority: P0
+install_when: anytime
 category: home
 goals: [智能家居]
 summary: 本地优先的智能家居中枢

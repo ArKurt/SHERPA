@@ -2,7 +2,7 @@
 id: sunshine-moonlight
 name: Sunshine + Moonlight
 layer: service
-priority: P2
+install_when: anytime
 category: remote
 goals: [远程访问自己的机器]
 summary: 低延迟的桌面与游戏串流

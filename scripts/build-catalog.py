@@ -44,7 +44,7 @@ def build():
             "goals": fm.get("goals", []),
             "summary": fm.get("summary", ""),
             "blurb": (fm.get("blurb") or "").strip(),
-            "priority": fm.get("priority", "P2"),
+            "install_when": fm.get("install_when", "anytime"),
             "requires": fm.get("requires") or {},
             "conflicts": fm.get("conflicts") or [],
             "risk": fm.get("risk", "none"),

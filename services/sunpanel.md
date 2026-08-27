@@ -2,7 +2,7 @@
 id: sunpanel
 name: SunPanel
 layer: service
-priority: P1
+install_when: last   # 导航面板——要先有别的服务才有意义
 category: tools
 goals: [自用面板]
 summary: 服务导航面板

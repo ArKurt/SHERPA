@@ -2,7 +2,7 @@
 id: jellyfin
 name: Jellyfin
 layer: service
-priority: P0
+install_when: anytime
 category: media
 goals: [多媒体影音]
 summary: 自托管的影音库与播放服务

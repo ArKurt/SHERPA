@@ -2,7 +2,7 @@
 id: immich
 name: Immich
 layer: service
-priority: P0
+install_when: anytime
 category: media
 goals: [照片备份, 多媒体影音]
 summary: 自托管的照片与视频库

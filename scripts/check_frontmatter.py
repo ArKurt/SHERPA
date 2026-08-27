@@ -102,6 +102,8 @@ for mid, m in mods.items():
         bad(f"{m['path']}: risk '{fm['risk']}' 不在 {sorted(RISK)} 中")
     if fm.get("risk") == "high" and not fm.get("needs_human"):
         bad(f"{m['path']}: risk=high 必须同时 needs_human=true")
+    if fm.get("layer") == "service" and fm.get("install_when") not in ("anytime", "last", None):
+        bad(f"{m['path']}: install_when 只能是 anytime / last，见 services/_schema.md")
     if "needs_human" in fm and not isinstance(fm["needs_human"], bool):
         bad(f"{m['path']}: needs_human 应为布尔值")
 if len(fails) == n: ok("risk / needs_human 合法")

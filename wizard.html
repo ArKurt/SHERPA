@@ -230,7 +230,7 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
 <script>
 const CATALOG = {
-  "commit": "c6e4ee4",
+  "commit": "28192da",
   "goals": [
     "下载",
     "从外网访问",
@@ -367,7 +367,7 @@ const CATALOG = {
       ],
       "summary": "常驻的下载器，配一个网页界面",
       "blurb": "把下载任务丢给家里那台常开的机器，它慢慢下，你关掉电脑也不受影响。\n支持 HTTP、种子、磁力，网页界面在任何设备的浏览器里都能打开。\n适合「睡前丢一批、早上起来已经好了」这种用法。",
-      "priority": "P0",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -405,7 +405,7 @@ const CATALOG = {
       ],
       "summary": "本地优先的智能家居中枢",
       "blurb": "把不同品牌的智能设备（灯、插座、传感器、空调、扫地机）统一到一个界面里，\n并且可以写自动化：回家开灯、没人时关空调、门开了推送通知。\n关键是**本地运行** —— 断网也能用，不必把家里的一举一动送到厂商云上。",
-      "priority": "P0",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -444,7 +444,7 @@ const CATALOG = {
       ],
       "summary": "自托管的照片与视频库",
       "blurb": "手机照片自动备份到你自己家里的机器上，多端同步，能按人脸、时间、地点浏览。\n可以理解为「自己家的 Google Photos」——照片存在你自己的硬盘上，\n不占云端空间、不按月付费、不看别人脸色。\n代价是：**这是本手册里对存储要求最苛刻的服务**，选它之前先看清楚硬盘怎么摆。",
-      "priority": "P0",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -486,7 +486,7 @@ const CATALOG = {
       ],
       "summary": "自托管的影音库与播放服务",
       "blurb": "把电影、剧集、音乐放在家里的机器上，电视、手机、平板、浏览器都能点开就看。\n自动刮削封面和简介，记住每个人看到第几分钟。\n可以理解为「自己的 Netflix，片源是你自己的收藏」——**完全免费、没有订阅、不会下架**。",
-      "priority": "P0",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -524,7 +524,7 @@ const CATALOG = {
       ],
       "summary": "自托管的音乐库与流媒体服务",
       "blurb": "把你的音乐收藏放在家里的机器上，手机和电脑随时点播。\n它兼容一套通用的音乐协议，所以**能用大量现成的第三方 App**，\n不必忍受某个厂商自带的难用客户端。\n可以理解为「自己的 Spotify，但曲库是你自己的收藏」。",
-      "priority": "P1",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -557,7 +557,7 @@ const CATALOG = {
       ],
       "summary": "服务导航面板",
       "blurb": "装到第七八个服务时，你会记不住哪个在哪个端口。\n这是一个首页，把所有服务做成图标，点一下就进去。\n小东西，但**服务多起来之后每天都会用**。",
-      "priority": "P1",
+      "install_when": "last",
       "requires": {
         "arch": [
           "x86_64",
@@ -590,7 +590,7 @@ const CATALOG = {
       ],
       "summary": "低延迟的桌面与游戏串流",
       "blurb": "把家里那台强机器的画面实时传到手上的设备，键鼠手柄都能用。\n可以在客厅电视上玩书房的游戏，或者出门时远程用家里的工作站。\nSunshine 装在被控的机器上，Moonlight 是你手上的客户端。",
-      "priority": "P2",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -626,7 +626,7 @@ const CATALOG = {
       ],
       "summary": "自托管的密码库",
       "blurb": "所有账号密码存在你自己家里的机器上，浏览器插件和手机 App 自动填充。\n和主流商业密码管理器用同一套客户端，体验一样，但**数据不在别人手上**。\n⚠️ 它存的是你的全部密码——这是本手册里安全要求最高的服务，别草率上。",
-      "priority": "P1",
+      "install_when": "anytime",
       "requires": {
         "arch": [
           "x86_64",
@@ -775,7 +775,8 @@ function renderStep2(){
   const order = ["media","photos","files","download","home","privacy","remote","web","tools","infra"];
   $("#svc-list").innerHTML = order.filter(c=>byCat[c]).map(c=>`
     <div class="cat-head">${CAT_CN[c]||c}</div>
-    <div class="svcs">${byCat[c].sort((a,b)=>a.priority.localeCompare(b.priority)).map(s=>`
+    <div class="svcs">${byCat[c].sort((a,b)=>(a.install_when==='last')-(b.install_when==='last')
+                            || a.name.localeCompare(b.name,'zh')).map(s=>`
       <label class="svc${S.svcs.includes(s.id)?" sel":""}" data-v="${s.id}">
         <h3>${s.name}<span class="sum">${s.summary}</span></h3>
         <div class="blurb">${s.blurb}</div>
@@ -940,7 +941,10 @@ function buildSheet(){
   }
   step("内网寻址（服务怎么被访问到）","layers/7-lan-addressing.md");
   step("★ 拔盘演练","layers/5-storage.md","★ 只有还没有真实数据时做才安全");
-  chosen.forEach(s=>step(`装 ${s.name}`, s.doc, s.needs_human?"⚠ 问我":""));
+  // install_when: last 的排在其它服务之后 —— 比如导航面板要先有导航对象
+  [...chosen].sort((a,b)=>(a.install_when==='last')-(b.install_when==='last'))
+    .forEach(s=>step(`装 ${s.name}`, s.doc,
+      (s.needs_human?"⚠ 问我":"") + (s.install_when==='last'?"（要等其它服务就位）":"")));
   step("开机自恢复","ops/boot-persistence.md");
   step("真断电，走冷启动验收","ops/cold-start-acceptance.md",
        (S.con.scope==="all"||S.con.existing==="some")?"⚠ 问我：需要停机窗口":"");

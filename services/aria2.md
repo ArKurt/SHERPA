@@ -2,7 +2,7 @@
 id: aria2
 name: aria2 + AriaNg
 layer: service
-priority: P0
+install_when: anytime
 category: download
 goals: [下载]
 summary: 常驻的下载器，配一个网页界面

@@ -1,0 +1,23 @@
+# 凭证——绝不入库，见 ops/secrets.md
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets/
+
+# 本地工作笔记（端口表、落点表这类现场信息不属于公开手册）
+NOTES.md
+notes/
+scratch/
+
+# 编辑器与系统
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc

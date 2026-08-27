@@ -52,7 +52,7 @@ NAS      →  服务器
 |---|---|
 | [**wizard.html**](wizard.html) | **人从这里进** —— 三轮问卷，生成装机清单 |
 | [**00-probe.md**](00-probe.md) | **从这里开始** —— 探测你的环境，产出一个配置向量 |
-| [layers/](layers/) | **主干** —— 六层，每层给若干选项和选型判据 |
+| [layers/](layers/) | **主干** —— 七层，每层给若干选项和选型判据 |
 | [blueprints/](blueprints/) | **三条参考架构** —— 拿你的向量先来这里对号入座（[快速排除表](blueprints/README.md)） |
 | [services/](services/) | **服务菜单** —— 全部可选，按需挑 |
 | [services/_deployment.md](services/_deployment.md) | 服务怎么摆——目录布局、版本、端口表 |
@@ -61,7 +61,7 @@ NAS      →  服务器
 | [**pitfalls/**](pitfalls/) | **排障区** —— 出问题了按症状查这里 |
 | [archive/](archive/) | 历史素材，**不是现行方案** |
 
-### 六层主干
+### 七层主干
 
 ```
 层 1  虚拟化底座      你这台机器能承载什么形态

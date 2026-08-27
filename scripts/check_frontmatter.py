@@ -155,6 +155,28 @@ for p in sorted(ROOT.rglob("*.md")):
             bad(f"{p.relative_to(ROOT)}:{i}: 标题含 emoji/圈码，会产生不稳定锚点 — {m.group(1)!r}")
 if len(fails) == n: ok("标题无 emoji/圈码")
 
+# 层的验收写在「## 验收」小节里，不在 frontmatter —— 之前这块完全没被检查过。
+# 契约要求所有 verify 都从客户端视角写，层也不例外。
+n = len(fails)
+for p in sorted((ROOT / "layers").glob("*.md")):
+    fm = load(p)
+    if not fm or fm.get("layer") in (1,):        # 层 1 是底座选型，没有可验收的动作
+        continue
+    txt = p.read_text(encoding="utf-8")
+    if "## 验收" not in txt:
+        bad(f"{p.relative_to(ROOT)}: 缺「## 验收」小节")
+        continue
+    sec = txt.split("## 验收", 1)[1].split("\n## ", 1)[0]
+    if "verify: |" not in sec:
+        bad(f"{p.relative_to(ROOT)}: 验收小节里没有 verify 块")
+        continue
+    if not any(k in sec for k in ("客户端", "另一台", "外网", "真实设备")):
+        bad(f"{p.relative_to(ROOT)}: 验收未体现客户端视角")
+    if re.search(r'^\s*(curl|nslookup|dig)\b.*\b(localhost|127\.0\.0\.1)',
+                 sec, re.M):
+        bad(f"{p.relative_to(ROOT)}: 验收命令指向 localhost")
+if len(fails) == n: ok("层的验收均为客户端视角")
+
 # 服务菜单必须与目录一一对应 —— 新增服务忘了挂进菜单，读者就永远看不到它
 menu = (ROOT / "services" / "README.md").read_text(encoding="utf-8")
 svc_ids = {m["fm"]["id"] for m in mods.values() if m["fm"].get("layer") == "service"}

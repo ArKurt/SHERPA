@@ -190,8 +190,12 @@ verify: |
 
   # 2. 关键：确认没有拿到旁路由发的 DHCP
   #    客户端的 DHCP 服务器地址应当仍是主路由 192.0.2.1
-  #    Linux: journalctl -u NetworkManager | grep -i 'dhcp.*server'
-  #    macOS: ipconfig getpacket en0 | grep server_identifier
+  #    Linux (NetworkManager): nmcli -f DHCP4.OPTION device show <网卡> \
+  #                             | grep dhcp_server_identifier
+  #    Linux (systemd-networkd): networkctl status <网卡> | grep -i 'DHCP4 Server'
+  #    macOS:                    ipconfig getpacket en0 | grep server_identifier
+  #    ⚠️ 查不到就直接看客户端拿到的租约文件，别用日志grep——
+  #       日志可能是历史记录，不代表当前租约
   # 期望: 192.0.2.1（主路由），不是旁路由的地址
 ```
 

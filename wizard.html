@@ -230,7 +230,7 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
 <script>
 const CATALOG = {
-  "commit": "af162d9",
+  "commit": "e0a70b0",
   "goals": [
     "下载",
     "从外网访问",
@@ -891,6 +891,9 @@ const CONSTRAINTS = [
   { id:"domain", always:true, label:"你有自己的域名吗？",
     hint:"有的话，内网用它的子域最省事——既不会和公网冲突，又能签真证书（内网上 HTTPS 需要它）。",
     opts:[["yes","有"],["no","没有"],["unknown","不知道算不算"]] },
+  { id:"existing", always:true, label:"这台机器上现在已经跑着什么服务吗？",
+    hint:"如果不是一台空机器，助手会先盘点已有的容器、端口和数据落点，再动网络——否则出了问题分不清是新装的坏了还是本来就坏。",
+    opts:[["none","空机器 / 全新装"],["some","已经跑着一些"],["unknown","不确定"]] },
   { id:"disks", multi:true, when:s=>s.svcs.length>0,
     label:"你有哪些盘可以用？",
     hint:"可多选。数据库和照片原图对盘的要求完全不同，助手会照手册的判据分开安置。",
@@ -1024,6 +1027,12 @@ function buildSheet(){
   L.push(`- [ ] 能不能跑虚拟机（Linux 看 \`/dev/kvm\`；macOS 看 \`sysctl kern.hv_support\`）`);
   L.push(`- [ ] 盘的文件系统与总线（\`df -T\` / \`lsblk -o NAME,TRAN\`）→ **决定数据库能落在哪**`);
   L.push(`- [ ] 网口数量 —— 只有一个网口时，高风险操作必须在能物理接触机器时做`);
+  if(S.con.existing!=="none")
+    L.push(`- [ ] ★ **盘点已有容器/端口/数据卷**，并从客户端记下每个既有服务的当前状态`
+         + ` —— 没有这个基线，改完网络出问题分不清新旧 → \`00-probe.md\``);
+  if(S.goals.includes("旁路由 / 全屋代理"))
+    L.push(`- [ ] ★ **IPv6 现状**（\`ip -6 route show default\`；\`curl -4\` 与 \`curl -6\` 对比出口）`
+         + ` —— 只管 IPv4 就说"全屋"是超出实测范围 → \`layers/3-proxy-stack.md\``);
   if(S.goals.includes("从外网访问") && S.con.wan!=="public")
     L.push(`- [ ] 路由器 WAN 口地址是不是运营商大内网 → 决定层 6 的可选范围`);
   if(S.con.router_static!=="yes")
@@ -1054,6 +1063,14 @@ function buildSheet(){
     flags.push(["选的服务里有数据库，但没有合格的落点",
       `${dbSvc.map(x=>x.name).join(" / ")} 需要落在原生文件系统上，而你只有移动硬盘或网络挂载。`,
       "layers/5-storage.md"]);
+  if(S.con.scope==="all")
+    flags.push(["答了「全屋默认」，但「全屋」需要划边界",
+      "承载旁路由的那台机器自己不能走它（会开机死锁）；它上面已有的服务也跟着直连。IPv6 若不处理同样绕过。这三件事必须和用户逐条确认，不能默默缩小「全屋」的含义。",
+      "00-probe.md · layers/1-substrate.md · layers/3-proxy-stack.md"]);
+  if(S.con.existing==="some" && S.goals.includes("旁路由 / 全屋代理"))
+    flags.push(["机器上已有服务，同时又要改网络",
+      "桥接、改网关、NAS 重启都会波及既有服务。动手前必须有变更前基线，否则回滚后无法证明恢复了原状。",
+      "00-probe.md · services/_deployment.md"]);
   if(S.os==="windows")
     flags.push(["机器现在是 Windows",
       "本手册的主路径要求类 Unix 系统。重装会擦掉盘上现有数据。",
@@ -1080,6 +1097,8 @@ function buildSheet(){
 
   L.push(``,`## ${flags.length?"六":"五"}、施工序`,``,`> 顺序不是随意的。带 ★ 的有硬性时间约束，做晚了就没机会了。`,``);
   let n=0; const step=(t,doc,flag)=>L.push(`${++n}. [ ] ${t}${flag?"  "+flag:""}${doc?`  → \`${doc}\``:""}`);
+  if(S.con.existing!=="none")
+    step("★ 盘点已有服务并记录变更前基线","00-probe.md","★ 动网络之前必须完成");
   step("主机系统与容器运行时就位","layers/1-substrate.md", S.os==="windows"?"⚠ 问我":"");
   step("服务器固定 IP","layers/2-gateway.md","⚠ 问我");
   step("★ 定下每个服务的数据落点","layers/5-storage.md","★ 装服务前必须完成");
@@ -1092,7 +1111,8 @@ function buildSheet(){
   step("★ 拔盘演练","layers/5-storage.md","★ 只有还没有真实数据时做才安全");
   chosen.forEach(s=>step(`装 ${s.name}`, s.doc, s.needs_human?"⚠ 问我":""));
   step("开机自恢复","ops/boot-persistence.md");
-  step("真断电，走冷启动验收","ops/cold-start-acceptance.md");
+  step("真断电，走冷启动验收","ops/cold-start-acceptance.md",
+       (S.con.scope==="all"||S.con.existing==="some")?"⚠ 问我：需要停机窗口":"");
   step("★ 备份配好并验证过能恢复","ops/backup.md","★ 灌真实数据前必须完成");
   if(S.goals.includes("从外网访问")) step("公网入口","layers/6-ingress.md","⚠ 问我");
   if(S.goals.includes("常驻 AI agent")) step("常驻 AI harness","advanced/resident-ai-harness.md");

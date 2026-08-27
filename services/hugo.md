@@ -1,8 +1,19 @@
 ---
 id: hugo
-name: Hugo（静态博客）
+name: Hugo
 layer: service
 priority: P2
+category: web
+goals: [建站]
+summary: 静态网站生成器
+blurb: |
+  用 Markdown 写文章，它生成一堆纯静态网页，交给服务器直接提供。
+  **没有常驻进程、没有数据库**，所以几乎不吃资源、也几乎没有安全维护负担——
+  这正是它比传统博客系统省心的地方。
+docs:
+  - type: official
+    title: Hugo 官方文档
+    url: https://gohugo.io/documentation/
 requires: {arch: [x86_64, aarch64], substrate: [bare-metal, vm, container]}
 conflicts: []
 risk: none

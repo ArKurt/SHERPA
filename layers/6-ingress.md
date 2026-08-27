@@ -3,6 +3,8 @@ id: layer-6
 layer: 6
 field: ingress
 multi: false
+goals: ["从外网访问"]
+optional: true
 options: [none, tailscale, tunnel, port-forward]
 ---
 

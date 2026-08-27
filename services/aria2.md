@@ -1,8 +1,22 @@
 ---
 id: aria2
-name: aria2 + AriaNg（下载器）
+name: aria2 + AriaNg
 layer: service
 priority: P0
+category: download
+goals: [下载]
+summary: 常驻的下载器，配一个网页界面
+blurb: |
+  把下载任务丢给家里那台常开的机器，它慢慢下，你关掉电脑也不受影响。
+  支持 HTTP、种子、磁力，网页界面在任何设备的浏览器里都能打开。
+  适合「睡前丢一批、早上起来已经好了」这种用法。
+docs:
+  - type: official
+    title: aria2 官方手册
+    url: https://aria2.github.io/manual/en/html/
+  - type: official
+    title: AriaNg 网页界面
+    url: https://github.com/mayswind/AriaNg
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

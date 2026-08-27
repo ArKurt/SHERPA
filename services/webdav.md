@@ -1,8 +1,19 @@
 ---
 id: webdav
-name: WebDAV（简易文件服务）
+name: WebDAV
 layer: service
 priority: P2
+category: files
+goals: [文件同步]
+summary: 最通用的简易文件服务
+blurb: |
+  开一个目录出来，让别的设备当网络硬盘用。
+  它的价值在于**几乎什么都能连**——系统自带的文件管理器、各类 App 大多原生支持，
+  不用装专门的客户端。常用来给某个 App 当配置同步的后端。
+docs:
+  - type: official
+    title: hacdias/webdav（一种轻量实现）
+    url: https://github.com/hacdias/webdav
 requires: {arch: [x86_64, aarch64], substrate: [bare-metal, vm, container]}
 conflicts: []
 risk: medium              # 明文 HTTP 时凭证会裸奔

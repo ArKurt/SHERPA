@@ -1,8 +1,23 @@
 ---
 id: immich
-name: Immich（自托管相册）
+name: Immich
 layer: service
 priority: P0
+category: media
+goals: [照片备份, 多媒体影音]
+summary: 自托管的照片与视频库
+blurb: |
+  手机照片自动备份到你自己家里的机器上，多端同步，能按人脸、时间、地点浏览。
+  可以理解为「自己家的 Google Photos」——照片存在你自己的硬盘上，
+  不占云端空间、不按月付费、不看别人脸色。
+  代价是：**这是本手册里对存储要求最苛刻的服务**，选它之前先看清楚硬盘怎么摆。
+docs:
+  - type: official
+    title: Immich 官方文档
+    url: https://immich.app/docs
+  - type: official
+    title: 官方安装指引（Docker Compose）
+    url: https://immich.app/docs/install/docker-compose
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

@@ -3,6 +3,8 @@ id: layer-3
 layer: 3
 field: proxy
 multi: false
+goals: ["旁路由 / 全屋代理"]
+optional: true
 options: [none, nikki, shellcrash, openclash, homeproxy, client-side]
 ---
 

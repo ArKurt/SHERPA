@@ -1,0 +1,25 @@
+# 手册里允许出现的外部域名白名单。
+# 新增外链必须先登记在这里 —— 这既防内网域名泄漏，也避免外链无节制蔓延。
+# 只登记域名，不含路径。以 # 开头为注释。
+
+# 标准与规范
+creativecommons.org
+datatracker.ietf.org
+www.rfc-editor.org
+
+# 服务的官方文档
+immich.app
+jellyfin.org
+www.home-assistant.io
+aria2.github.io
+github.com
+www.navidrome.org
+docs.searxng.org
+docs.syncthing.net
+gohugo.io
+docs.lizardbyte.dev
+moonlight-stream.org
+
+# 文档里用作占位的保留域名（RFC 2606）
+example.com
+example.org

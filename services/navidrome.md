@@ -1,8 +1,20 @@
 ---
 id: navidrome
-name: Navidrome（音乐库）
+name: Navidrome
 layer: service
 priority: P1
+category: media
+goals: [多媒体影音]
+summary: 自托管的音乐库与流媒体服务
+blurb: |
+  把你的音乐收藏放在家里的机器上，手机和电脑随时点播。
+  它兼容一套通用的音乐协议，所以**能用大量现成的第三方 App**，
+  不必忍受某个厂商自带的难用客户端。
+  可以理解为「自己的 Spotify，但曲库是你自己的收藏」。
+docs:
+  - type: official
+    title: Navidrome 官方文档
+    url: https://www.navidrome.org/docs/
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

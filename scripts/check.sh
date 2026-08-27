@@ -40,10 +40,24 @@ check_redaction() {
          --include='*.md' . 2>/dev/null | grep -v '^\./archive/' || true)
   [ -z "$hits" ] && ok "无订阅链接痕迹" || { bad "发现疑似订阅/节点链接"; echo "$hits" | head -20; }
 
-  # 非保留的真实域名（.uk/.com 等，排除白名单）
-  hits=$(grep -rEon '\b[a-z0-9-]+\.(uk|dev|xyz|top|cc|me)\b' --include='*.md' . 2>/dev/null \
-         | grep -viE 'example\.|(^|/)archive/' || true)
-  [ -z "$hits" ] && ok "无可疑真实域名" || { bad "发现可疑域名"; echo "$hits" | head -20; }
+  # 外链白名单制：所有 http(s) 链接的域名必须登记在 scripts/allowed-domains.txt。
+  # 既防内网域名泄漏，也避免外链无节制蔓延。
+  local unknown
+  # archive/ 是历史原文，其中的链接保持原样，不纳入白名单管理
+  unknown=$(grep -rhoE 'https?://[A-Za-z0-9._-]+' --include='*.md' \
+      --exclude-dir=archive . 2>/dev/null \
+    | sed -E 's|https?://||' | sort -u \
+    | grep -vE '^(192\.0\.2\.|198\.51\.100\.|203\.0\.113\.)' \
+    | grep -vE '(^|\.)example\.(com|org|net)$' \
+    | grep -vxE 'myserver|<[^>]*>' \
+    | grep -vxFf <(grep -vE '^\s*(#|$)' scripts/allowed-domains.txt) || true)
+  [ -z "$unknown" ] && ok "外链域名均已登记" || {
+    bad "发现未登记的外链域名（确认无误后加进 scripts/allowed-domains.txt）"; echo "$unknown" | sed 's/^/       /'; }
+
+  # 裸写的真实域名（不在 URL 里的），仍按后缀拦
+  hits=$(grep -rEn '(^|[^/A-Za-z0-9._-])[a-z0-9-]+\.(uk|xyz|top)\b' --include='*.md' . 2>/dev/null \
+         | grep -v '^\./archive/' || true)
+  [ -z "$hits" ] && ok "无裸写的可疑域名" || { bad "发现可疑域名"; echo "$hits" | head -20; }
 }
 
 # ── 2. frontmatter ───────────────────────────────────────

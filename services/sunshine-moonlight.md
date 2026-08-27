@@ -1,8 +1,22 @@
 ---
 id: sunshine-moonlight
-name: Sunshine + Moonlight（远程桌面 / 串流）
+name: Sunshine + Moonlight
 layer: service
 priority: P2
+category: remote
+goals: [远程访问自己的机器]
+summary: 低延迟的桌面与游戏串流
+blurb: |
+  把家里那台强机器的画面实时传到手上的设备，键鼠手柄都能用。
+  可以在客厅电视上玩书房的游戏，或者出门时远程用家里的工作站。
+  Sunshine 装在被控的机器上，Moonlight 是你手上的客户端。
+docs:
+  - type: official
+    title: Sunshine 官方文档
+    url: https://docs.lizardbyte.dev/projects/sunshine/
+  - type: official
+    title: Moonlight 客户端
+    url: https://moonlight-stream.org/
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal]        # 需要直接访问 GPU 与显示会话，容器里很别扭

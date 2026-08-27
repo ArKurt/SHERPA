@@ -1,8 +1,22 @@
 ---
 id: jellyfin
-name: Jellyfin（媒体服务器）
+name: Jellyfin
 layer: service
 priority: P0
+category: media
+goals: [多媒体影音]
+summary: 自托管的影音库与播放服务
+blurb: |
+  把电影、剧集、音乐放在家里的机器上，电视、手机、平板、浏览器都能点开就看。
+  自动刮削封面和简介，记住每个人看到第几分钟。
+  可以理解为「自己的 Netflix，片源是你自己的收藏」——**完全免费、没有订阅、不会下架**。
+docs:
+  - type: official
+    title: Jellyfin 官方文档
+    url: https://jellyfin.org/docs/
+  - type: official
+    title: 硬件加速转码配置
+    url: https://jellyfin.org/docs/general/administration/hardware-acceleration/
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

@@ -3,6 +3,8 @@ id: layer-2
 layer: 2
 field: gateway
 multi: false
+goals: ["旁路由 / 全屋代理"]
+optional: true
 options: [none, vm-openwrt, container-macvlan, dedicated-box, client-only]
 ---
 

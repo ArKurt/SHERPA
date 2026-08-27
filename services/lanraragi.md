@@ -1,8 +1,18 @@
 ---
 id: lanraragi
-name: LANraragi（漫画/图集库）
+name: LANraragi
 layer: service
 priority: P2
+category: media
+goals: [多媒体影音]
+summary: 漫画与图集库
+blurb: |
+  把压缩包形式的漫画、画集丢进去，它负责整理、生成缩略图、提供在线阅读。
+  手机和平板浏览器里直接看，不用先解压再传来传去。
+docs:
+  - type: official
+    title: LANraragi 项目与文档
+    url: https://github.com/Difegue/LANraragi
 requires: {arch: [x86_64, aarch64], substrate: [bare-metal, vm, container]}
 conflicts: []
 risk: low

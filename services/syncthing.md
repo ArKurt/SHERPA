@@ -1,8 +1,19 @@
 ---
 id: syncthing
-name: Syncthing（文件同步）
+name: Syncthing
 layer: service
 priority: P2
+category: files
+goals: [文件同步]
+summary: 设备之间的点对点文件同步
+blurb: |
+  在几台设备之间保持一个文件夹同步，**不经过任何第三方服务器**，直接点对点传。
+  可以理解为「不用付费、不限容量、数据不出门的网盘同步」。
+  ⚠️ 它同步的是「状态」——一端删了另一端也会删。**它不是备份**，别当备份用。
+docs:
+  - type: official
+    title: Syncthing 官方文档
+    url: https://docs.syncthing.net/
 requires: {arch: [x86_64, aarch64], substrate: [bare-metal, vm, container]}
 conflicts: []
 risk: medium              # 配错了会双向删除文件

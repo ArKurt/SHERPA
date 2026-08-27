@@ -1,8 +1,19 @@
 ---
 id: vaultwarden
-name: Vaultwarden（自托管密码库）
+name: Vaultwarden
 layer: service
 priority: P1
+category: privacy
+goals: [密码与隐私]
+summary: 自托管的密码库
+blurb: |
+  所有账号密码存在你自己家里的机器上，浏览器插件和手机 App 自动填充。
+  和主流商业密码管理器用同一套客户端，体验一样，但**数据不在别人手上**。
+  ⚠️ 它存的是你的全部密码——这是本手册里安全要求最高的服务，别草率上。
+docs:
+  - type: official
+    title: Vaultwarden Wiki（部署与配置）
+    url: https://github.com/dani-garcia/vaultwarden/wiki
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

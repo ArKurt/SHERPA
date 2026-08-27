@@ -3,6 +3,7 @@ id: layer-5
 layer: 5
 field: storage
 multi: true
+optional: false
 options: [internal, usb-portable, das-enclosure, nas]
 ---
 

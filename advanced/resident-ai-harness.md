@@ -1,3 +1,11 @@
+---
+id: resident-ai-harness
+name: 常驻 AI harness
+kind: chapter
+goals: ["常驻 AI agent"]
+optional: true
+---
+
 # 高阶 · 常驻 AI harness
 
 > 把 AI 客户端 / agent 常驻在服务器上：放哪台机器、怎么不被睡眠杀掉、

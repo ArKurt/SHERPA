@@ -1,8 +1,22 @@
 ---
 id: home-assistant
-name: Home Assistant（家居自动化）
+name: Home Assistant
 layer: service
 priority: P0
+category: home
+goals: [智能家居]
+summary: 本地优先的智能家居中枢
+blurb: |
+  把不同品牌的智能设备（灯、插座、传感器、空调、扫地机）统一到一个界面里，
+  并且可以写自动化：回家开灯、没人时关空调、门开了推送通知。
+  关键是**本地运行** —— 断网也能用，不必把家里的一举一动送到厂商云上。
+docs:
+  - type: official
+    title: Home Assistant 官方文档
+    url: https://www.home-assistant.io/docs/
+  - type: official
+    title: 容器安装方式
+    url: https://www.home-assistant.io/installation/
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

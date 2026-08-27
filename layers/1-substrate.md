@@ -3,6 +3,7 @@ id: layer-1
 layer: 1
 field: substrate
 multi: true
+optional: false
 options: [bare-metal, vm, container, none]
 ---
 

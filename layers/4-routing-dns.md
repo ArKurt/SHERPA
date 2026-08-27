@@ -3,6 +3,8 @@ id: layer-4
 layer: 4
 field: routing
 multi: false
+goals: ["旁路由 / 全屋代理"]
+optional: true
 options: []          # 本层不产生向量取值，只提供规则与 DNS 的做法
 ---
 

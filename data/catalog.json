@@ -1,0 +1,626 @@
+{
+  "commit": "4f3474a",
+  "goals": [
+    "下载",
+    "从外网访问",
+    "多媒体影音",
+    "密码与隐私",
+    "常驻 AI agent",
+    "建站",
+    "文件同步",
+    "旁路由 / 全屋代理",
+    "智能家居",
+    "照片备份",
+    "自用面板",
+    "远程访问自己的机器"
+  ],
+  "categories": [
+    "download",
+    "files",
+    "home",
+    "media",
+    "privacy",
+    "remote",
+    "tools",
+    "web"
+  ],
+  "layers": [
+    {
+      "layer": 1,
+      "field": "substrate",
+      "multi": true,
+      "optional": false,
+      "goals": [],
+      "options": [
+        "bare-metal",
+        "vm",
+        "container",
+        "none"
+      ],
+      "doc": "layers/1-substrate.md"
+    },
+    {
+      "layer": 2,
+      "field": "gateway",
+      "multi": false,
+      "optional": true,
+      "goals": [
+        "旁路由 / 全屋代理"
+      ],
+      "options": [
+        "none",
+        "vm-openwrt",
+        "container-macvlan",
+        "dedicated-box",
+        "client-only"
+      ],
+      "doc": "layers/2-gateway.md"
+    },
+    {
+      "layer": 3,
+      "field": "proxy",
+      "multi": false,
+      "optional": true,
+      "goals": [
+        "旁路由 / 全屋代理"
+      ],
+      "options": [
+        "none",
+        "nikki",
+        "shellcrash",
+        "openclash",
+        "homeproxy",
+        "client-side"
+      ],
+      "doc": "layers/3-proxy-stack.md"
+    },
+    {
+      "layer": 4,
+      "field": "routing",
+      "multi": false,
+      "optional": true,
+      "goals": [
+        "旁路由 / 全屋代理"
+      ],
+      "options": [],
+      "doc": "layers/4-routing-dns.md"
+    },
+    {
+      "layer": 5,
+      "field": "storage",
+      "multi": true,
+      "optional": false,
+      "goals": [],
+      "options": [
+        "internal",
+        "usb-portable",
+        "das-enclosure",
+        "nas"
+      ],
+      "doc": "layers/5-storage.md"
+    },
+    {
+      "layer": 6,
+      "field": "ingress",
+      "multi": false,
+      "optional": true,
+      "goals": [
+        "从外网访问"
+      ],
+      "options": [
+        "none",
+        "tailscale",
+        "tunnel",
+        "port-forward"
+      ],
+      "doc": "layers/6-ingress.md"
+    },
+    {
+      "layer": 7,
+      "field": "addressing",
+      "multi": true,
+      "optional": false,
+      "goals": [],
+      "options": [
+        "ip-static",
+        "hosts-file",
+        "lan-dns",
+        "mdns"
+      ],
+      "doc": "layers/7-lan-addressing.md"
+    }
+  ],
+  "services": [
+    {
+      "id": "aria2",
+      "name": "aria2 + AriaNg",
+      "category": "download",
+      "goals": [
+        "下载"
+      ],
+      "summary": "常驻的下载器，配一个网页界面",
+      "blurb": "把下载任务丢给家里那台常开的机器，它慢慢下，你关掉电脑也不受影响。\n支持 HTTP、种子、磁力，网页界面在任何设备的浏览器里都能打开。\n适合「睡前丢一批、早上起来已经好了」这种用法。",
+      "priority": "P0",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "aria2 官方手册",
+          "url": "https://aria2.github.io/manual/en/html/"
+        },
+        {
+          "type": "official",
+          "title": "AriaNg 网页界面",
+          "url": "https://github.com/mayswind/AriaNg"
+        }
+      ],
+      "doc": "services/aria2.md"
+    },
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "category": "home",
+      "goals": [
+        "智能家居"
+      ],
+      "summary": "本地优先的智能家居中枢",
+      "blurb": "把不同品牌的智能设备（灯、插座、传感器、空调、扫地机）统一到一个界面里，\n并且可以写自动化：回家开灯、没人时关空调、门开了推送通知。\n关键是**本地运行** —— 断网也能用，不必把家里的一举一动送到厂商云上。",
+      "priority": "P0",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Home Assistant 官方文档",
+          "url": "https://www.home-assistant.io/docs/"
+        },
+        {
+          "type": "official",
+          "title": "容器安装方式",
+          "url": "https://www.home-assistant.io/installation/"
+        }
+      ],
+      "doc": "services/home-assistant.md"
+    },
+    {
+      "id": "hugo",
+      "name": "Hugo",
+      "category": "web",
+      "goals": [
+        "建站"
+      ],
+      "summary": "静态网站生成器",
+      "blurb": "用 Markdown 写文章，它生成一堆纯静态网页，交给服务器直接提供。\n**没有常驻进程、没有数据库**，所以几乎不吃资源、也几乎没有安全维护负担——\n这正是它比传统博客系统省心的地方。",
+      "priority": "P2",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "none",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Hugo 官方文档",
+          "url": "https://gohugo.io/documentation/"
+        }
+      ],
+      "doc": "services/hugo.md"
+    },
+    {
+      "id": "immich",
+      "name": "Immich",
+      "category": "media",
+      "goals": [
+        "照片备份",
+        "多媒体影音"
+      ],
+      "summary": "自托管的照片与视频库",
+      "blurb": "手机照片自动备份到你自己家里的机器上，多端同步，能按人脸、时间、地点浏览。\n可以理解为「自己家的 Google Photos」——照片存在你自己的硬盘上，\n不占云端空间、不按月付费、不看别人脸色。\n代价是：**这是本手册里对存储要求最苛刻的服务**，选它之前先看清楚硬盘怎么摆。",
+      "priority": "P0",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ],
+        "storage": [
+          "internal",
+          "das-enclosure"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Immich 官方文档",
+          "url": "https://immich.app/docs"
+        },
+        {
+          "type": "official",
+          "title": "官方安装指引（Docker Compose）",
+          "url": "https://immich.app/docs/install/docker-compose"
+        }
+      ],
+      "doc": "services/immich.md"
+    },
+    {
+      "id": "jellyfin",
+      "name": "Jellyfin",
+      "category": "media",
+      "goals": [
+        "多媒体影音"
+      ],
+      "summary": "自托管的影音库与播放服务",
+      "blurb": "把电影、剧集、音乐放在家里的机器上，电视、手机、平板、浏览器都能点开就看。\n自动刮削封面和简介，记住每个人看到第几分钟。\n可以理解为「自己的 Netflix，片源是你自己的收藏」——**完全免费、没有订阅、不会下架**。",
+      "priority": "P0",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Jellyfin 官方文档",
+          "url": "https://jellyfin.org/docs/"
+        },
+        {
+          "type": "official",
+          "title": "硬件加速转码配置",
+          "url": "https://jellyfin.org/docs/general/administration/hardware-acceleration/"
+        }
+      ],
+      "doc": "services/jellyfin.md"
+    },
+    {
+      "id": "lanraragi",
+      "name": "LANraragi",
+      "category": "media",
+      "goals": [
+        "多媒体影音"
+      ],
+      "summary": "漫画与图集库",
+      "blurb": "把压缩包形式的漫画、画集丢进去，它负责整理、生成缩略图、提供在线阅读。\n手机和平板浏览器里直接看，不用先解压再传来传去。",
+      "priority": "P2",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "LANraragi 项目与文档",
+          "url": "https://github.com/Difegue/LANraragi"
+        }
+      ],
+      "doc": "services/lanraragi.md"
+    },
+    {
+      "id": "navidrome",
+      "name": "Navidrome",
+      "category": "media",
+      "goals": [
+        "多媒体影音"
+      ],
+      "summary": "自托管的音乐库与流媒体服务",
+      "blurb": "把你的音乐收藏放在家里的机器上，手机和电脑随时点播。\n它兼容一套通用的音乐协议，所以**能用大量现成的第三方 App**，\n不必忍受某个厂商自带的难用客户端。\n可以理解为「自己的 Spotify，但曲库是你自己的收藏」。",
+      "priority": "P1",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Navidrome 官方文档",
+          "url": "https://www.navidrome.org/docs/"
+        }
+      ],
+      "doc": "services/navidrome.md"
+    },
+    {
+      "id": "searxng",
+      "name": "SearXNG",
+      "category": "privacy",
+      "goals": [
+        "密码与隐私"
+      ],
+      "summary": "不追踪的聚合搜索",
+      "blurb": "它自己不索引网页，而是替你去问一堆搜索引擎再把结果汇总起来。\n好处是**不记录你搜过什么、不给你画像**，也没有广告。\n⚠️ 装好了搜不出东西是常见故障，和你的网络出口有关，选之前先看说明。",
+      "priority": "P2",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "low",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "SearXNG 官方文档",
+          "url": "https://docs.searxng.org/"
+        }
+      ],
+      "doc": "services/searxng.md"
+    },
+    {
+      "id": "sunpanel",
+      "name": "SunPanel",
+      "category": "tools",
+      "goals": [
+        "自用面板"
+      ],
+      "summary": "服务导航面板",
+      "blurb": "装到第七八个服务时，你会记不住哪个在哪个端口。\n这是一个首页，把所有服务做成图标，点一下就进去。\n小东西，但**服务多起来之后每天都会用**。",
+      "priority": "P1",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "none",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "SunPanel 项目主页",
+          "url": "https://github.com/hslr-s/sun-panel"
+        }
+      ],
+      "doc": "services/sunpanel.md"
+    },
+    {
+      "id": "sunshine-moonlight",
+      "name": "Sunshine + Moonlight",
+      "category": "remote",
+      "goals": [
+        "远程访问自己的机器"
+      ],
+      "summary": "低延迟的桌面与游戏串流",
+      "blurb": "把家里那台强机器的画面实时传到手上的设备，键鼠手柄都能用。\n可以在客厅电视上玩书房的游戏，或者出门时远程用家里的工作站。\nSunshine 装在被控的机器上，Moonlight 是你手上的客户端。",
+      "priority": "P2",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal"
+        ]
+      },
+      "conflicts": [],
+      "risk": "medium",
+      "needs_human": true,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Sunshine 官方文档",
+          "url": "https://docs.lizardbyte.dev/projects/sunshine/"
+        },
+        {
+          "type": "official",
+          "title": "Moonlight 客户端",
+          "url": "https://moonlight-stream.org/"
+        }
+      ],
+      "doc": "services/sunshine-moonlight.md"
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "category": "files",
+      "goals": [
+        "文件同步"
+      ],
+      "summary": "设备之间的点对点文件同步",
+      "blurb": "在几台设备之间保持一个文件夹同步，**不经过任何第三方服务器**，直接点对点传。\n可以理解为「不用付费、不限容量、数据不出门的网盘同步」。\n⚠️ 它同步的是「状态」——一端删了另一端也会删。**它不是备份**，别当备份用。",
+      "priority": "P2",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "medium",
+      "needs_human": true,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Syncthing 官方文档",
+          "url": "https://docs.syncthing.net/"
+        }
+      ],
+      "doc": "services/syncthing.md"
+    },
+    {
+      "id": "vaultwarden",
+      "name": "Vaultwarden",
+      "category": "privacy",
+      "goals": [
+        "密码与隐私"
+      ],
+      "summary": "自托管的密码库",
+      "blurb": "所有账号密码存在你自己家里的机器上，浏览器插件和手机 App 自动填充。\n和主流商业密码管理器用同一套客户端，体验一样，但**数据不在别人手上**。\n⚠️ 它存的是你的全部密码——这是本手册里安全要求最高的服务，别草率上。",
+      "priority": "P1",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ],
+        "storage": [
+          "internal",
+          "das-enclosure"
+        ]
+      },
+      "conflicts": [],
+      "risk": "medium",
+      "needs_human": true,
+      "docs": [
+        {
+          "type": "official",
+          "title": "Vaultwarden Wiki（部署与配置）",
+          "url": "https://github.com/dani-garcia/vaultwarden/wiki"
+        }
+      ],
+      "doc": "services/vaultwarden.md"
+    },
+    {
+      "id": "webdav",
+      "name": "WebDAV",
+      "category": "files",
+      "goals": [
+        "文件同步"
+      ],
+      "summary": "最通用的简易文件服务",
+      "blurb": "开一个目录出来，让别的设备当网络硬盘用。\n它的价值在于**几乎什么都能连**——系统自带的文件管理器、各类 App 大多原生支持，\n不用装专门的客户端。常用来给某个 App 当配置同步的后端。",
+      "priority": "P2",
+      "requires": {
+        "arch": [
+          "x86_64",
+          "aarch64"
+        ],
+        "substrate": [
+          "bare-metal",
+          "vm",
+          "container"
+        ]
+      },
+      "conflicts": [],
+      "risk": "medium",
+      "needs_human": false,
+      "docs": [
+        {
+          "type": "official",
+          "title": "hacdias/webdav（一种轻量实现）",
+          "url": "https://github.com/hacdias/webdav"
+        }
+      ],
+      "doc": "services/webdav.md"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "resident-ai-harness",
+      "name": "常驻 AI harness",
+      "goals": [
+        "常驻 AI agent"
+      ],
+      "doc": "advanced/resident-ai-harness.md"
+    }
+  ],
+  "blueprints": [
+    {
+      "id": "blueprint-a",
+      "name": "A · 老笔记本一肩挑",
+      "status": "已验证 · 已退役",
+      "doc": "blueprints/a-single-laptop.md"
+    },
+    {
+      "id": "blueprint-b",
+      "name": "B · 混合（服务原生 + 旁路由 VM）",
+      "status": "已验证 · 在用",
+      "doc": "blueprints/b-hybrid-mini.md"
+    },
+    {
+      "id": "blueprint-c",
+      "name": "C · NAS 底座",
+      "status": "⚠️ 未落地验证",
+      "doc": "blueprints/c-nas.md"
+    }
+  ]
+}

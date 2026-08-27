@@ -1,8 +1,19 @@
 ---
 id: sunpanel
-name: SunPanel（导航面板）
+name: SunPanel
 layer: service
 priority: P1
+category: tools
+goals: [自用面板]
+summary: 服务导航面板
+blurb: |
+  装到第七八个服务时，你会记不住哪个在哪个端口。
+  这是一个首页，把所有服务做成图标，点一下就进去。
+  小东西，但**服务多起来之后每天都会用**。
+docs:
+  - type: official
+    title: SunPanel 项目主页
+    url: https://github.com/hslr-s/sun-panel
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]

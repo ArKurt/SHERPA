@@ -1,8 +1,19 @@
 ---
 id: searxng
-name: SearXNG（元搜索）
+name: SearXNG
 layer: service
 priority: P2
+category: privacy
+goals: [密码与隐私]
+summary: 不追踪的聚合搜索
+blurb: |
+  它自己不索引网页，而是替你去问一堆搜索引擎再把结果汇总起来。
+  好处是**不记录你搜过什么、不给你画像**，也没有广告。
+  ⚠️ 装好了搜不出东西是常见故障，和你的网络出口有关，选之前先看说明。
+docs:
+  - type: official
+    title: SearXNG 官方文档
+    url: https://docs.searxng.org/
 requires: {arch: [x86_64, aarch64], substrate: [bare-metal, vm, container]}
 conflicts: []
 risk: low

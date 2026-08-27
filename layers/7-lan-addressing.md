@@ -3,6 +3,7 @@ id: layer-7
 layer: 7
 field: addressing
 multi: true
+optional: false
 options: [ip-static, hosts-file, lan-dns, mdns]
 ---
 

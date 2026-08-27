@@ -40,24 +40,30 @@ options: [none, nikki, shellcrash, openclash, homeproxy, client-side]
 
 > ⚠️ **订阅 URL 是凭证。** 探测它的格式时，**不要把它写进命令行参数** ——
 > 同机任何能看进程列表的人都能读到，而且它会进入 shell 历史和 agent 的调用记录。
-> 见 [`ops/secrets.md`](../ops/secrets.md#怎么传给服务)。
+> 见 [`ops/secrets.md`](../ops/secrets.md#情形二传给一条你手敲或-agent-敲的命令)。
 
-**安全的探测方式**（URL 只经环境变量传入，原始响应绝不回显）：
+> ⚠️ **只放进环境变量还不够。** `curl "$SUB_URL"` 里的变量**会被 shell 展开后才执行**——
+> 展开的值照样进入 argv，`/proc/<pid>/cmdline` 一样读得到。
+> **要让凭证走 stdin 或配置文件，绕开命令行。**
+
+**安全的探测方式**：
 
 ```sh
-# 1. 用户自己把链接放进环境变量，不要让它出现在你的命令里
-read -rs SUB_URL && export SUB_URL          # 输入时不回显
+# 1. 读进变量，输入时不回显
+read -rs SUB_URL
 
-# 2. 只输出【格式分类】，不输出任何响应内容
-curl -s --max-time 15 "$SUB_URL" \
-  | head -c 2000 \
-  | grep -qE '^(proxies|proxy-providers|mixed-port|port):' && echo "clash-yaml" \
-  || curl -s --max-time 15 "$SUB_URL" | head -c 2000 \
-     | grep -qE '"outbounds"' && echo "sing-box-json" \
-     || echo "node-list-or-unknown"
+# 2. URL 经 curl 的配置（stdin）传入，不出现在命令行里
+fmt() {
+  printf 'url = "%s"\nsilent\nmax-time = 15\n' "$SUB_URL" \
+    | curl -K - | head -c 2000
+}
+if   fmt | grep -qE '^(proxies|proxy-providers):' ; then echo clash-yaml
+elif fmt | grep -q  '"outbounds"'                 ; then echo sing-box-json
+else                                                    echo node-list-or-unknown
+fi
 
 # 3. 用完立刻清掉
-unset SUB_URL
+unset SUB_URL; unset -f fmt
 ```
 
 > **如果你是 agent**：你的最终产出只能是 `clash-yaml` / `sing-box-json` /

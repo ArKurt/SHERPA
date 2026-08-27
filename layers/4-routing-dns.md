@@ -138,15 +138,22 @@ rules:
 
 多数 mihomo 系内核提供一个 HTTP 控制接口，可以直接问它：
 
+> ⚠️ **控制接口的密钥不要写进命令行。** 写成 `-H "Authorization: Bearer $TOKEN"`
+> 也不行——shell 展开后值仍然进 argv。让它走 curl 的配置（stdin）：
+
 ```sh
-# 生效的规则表（确认你的规则在最前面）
-curl -s -H "Authorization: Bearer <API_SECRET>" http://192.0.2.4:9090/rules
+read -rs API_SECRET
 
-# 各代理组当前选中了谁
-curl -s -H "Authorization: Bearer <API_SECRET>" http://192.0.2.4:9090/proxies
+api() {                       # $1 = 接口路径
+  printf 'header = "Authorization: Bearer %s"\nsilent\n' "$API_SECRET" \
+    | curl -K - "http://192.0.2.4:9090/$1"
+}
 
-# ★ 最有用的一个：真实连接命中了哪条规则、走了哪条链
-curl -s -H "Authorization: Bearer <API_SECRET>" http://192.0.2.4:9090/connections
+api rules        # 生效的规则表（确认你的规则在最前面）
+api proxies      # 各代理组当前选中了谁
+api connections  # ★ 最有用的：真实连接命中了哪条规则、走了哪条链
+
+unset API_SECRET; unset -f api
 ```
 
 ### 对照实验才算证明

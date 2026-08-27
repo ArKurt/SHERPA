@@ -54,6 +54,12 @@ check_redaction() {
   [ -z "$unknown" ] && ok "外链域名均已登记" || {
     bad "发现未登记的外链域名（确认无误后加进 scripts/allowed-domains.txt）"; echo "$unknown" | sed 's/^/       /'; }
 
+  # 内部主机名 / 内网标识 —— 公开仓库里不该出现
+  hits=$(grep -rniE '\b(<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>)\b' \
+         --include='*.md' --include='*.html' --include='*.py' --include='*.sh' --include='*.json' . 2>/dev/null \
+         | grep -vE '^\./(archive/|scripts/check\.sh)' || true)
+  [ -z "$hits" ] && ok "无内部主机名" || { bad "发现内部主机名"; echo "$hits" | head -10; }
+
   # 裸写的真实域名（不在 URL 里的），仍按后缀拦
   hits=$(grep -rEn '(^|[^/A-Za-z0-9._-])[a-z0-9-]+\.(uk|xyz|top)\b' --include='*.md' . 2>/dev/null \
          | grep -v '^\./archive/' || true)

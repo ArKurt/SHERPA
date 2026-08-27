@@ -24,9 +24,13 @@ conflicts: []
 risk: low
 needs_human: false
 verify: |
-  # 从【另一台设备】调 RPC 接口
-  curl -s -X POST http://192.0.2.10:6800/jsonrpc \
-    -d '{"jsonrpc":"2.0","id":"1","method":"aria2.getVersion","params":["token:<RPC_SECRET>"]}'
+  # 从【另一台设备】调 RPC 接口。
+  # ⚠️ 密钥走 stdin（-d @-），不要写进命令行——argv 是所有人可读的。
+  read -rs RPC_SECRET
+  printf '{"jsonrpc":"2.0","id":"1","method":"aria2.getVersion","params":["token:%s"]}' \
+    "$RPC_SECRET" \
+    | curl -s -X POST -d @- http://192.0.2.10:6800/jsonrpc
+  unset RPC_SECRET
   # 期望: 返回 JSON，含 version 字段
 rollback: |
   docker compose down

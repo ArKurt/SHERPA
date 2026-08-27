@@ -19,6 +19,7 @@ docs.syncthing.net
 gohugo.io
 docs.lizardbyte.dev
 moonlight-stream.org
+tailscale.com
 
 # 文档里用作占位的保留域名（RFC 2606）
 example.com

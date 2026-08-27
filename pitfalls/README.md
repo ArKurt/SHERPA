@@ -33,11 +33,9 @@
 | 某天突然不可用，没人改过配置 | [兜底组漂到了被屏蔽地区](proxy-dns.md#兜底链路把服务静默杀死) |
 | AI CLI 报证书自签，怀疑代理 MITM | [包装器注入了会话代理](services.md#ai-cli-报证书自签怀疑代理在中间人) |
 | Home Assistant 一个设备都发现不了 | [容器用了默认桥接网络](services.md#home-assistant-一个设备都发现不了) |
-| SearXNG 能打开但搜不出东西 | [出口 IP 被搜索引擎限制](services.md#searxng-能打开但搜不出东西) |
 | Immich 主服务崩溃重启循环 | [主服务与 ML 版本不一致](services.md#immich-主服务崩溃重启循环) |
 | 密码库登录后无法解锁 | [不是 HTTPS](services.md#密码库客户端登录后无法解锁) |
 | 面板里点某些服务没反应 | [内嵌 iframe + 认证 + 重定向](services.md#面板里点某些服务没反应) |
-| Syncthing 界面从别的机器打不开 | [GUI 默认只绑 127.0.0.1](services.md#syncthing-的界面从别的机器打不开) |
 | 串流卡顿 | [流量走了代理](services.md#串流卡顿) |
 
 ### 数据与存储
@@ -47,7 +45,6 @@
 | 数据库崩溃重启循环，但原始数据没丢 | [数据库落在会掉线的盘上](storage.md#数据库和媒体库同盘盘一走就崩溃循环) |
 | 服务能跑但一写就报权限错误 | [exFAT 没有 POSIX 权限](storage.md#exfat-上的容器写入权限怎么调都不对) |
 | 服务起来了但看不到数据 | [挂载晚于服务启动](storage.md#服务起来了但看到的是空目录) |
-| 文件被两端一起删了 | [Syncthing 同步的是状态](services.md#syncthing-把文件双向删了) |
 
 ### 重启之后
 

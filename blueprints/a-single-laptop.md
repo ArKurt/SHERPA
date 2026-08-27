@@ -18,8 +18,9 @@ gateway:   vm-openwrt            # 单臂旁路由
 proxy:     shellcrash            # 订阅格式驱动的选择
 storage:   [internal, usb-portable]
 ingress:   tunnel                # 出站隧道，无端口转发、无公网 IP 依赖
-services:  [jellyfin, immich, navidrome, lanraragi, aria2, searxng,
-            home-assistant, sunpanel, hugo]   # 当年实跑约 17 个容器
+services:  [jellyfin, immich, navidrome, aria2, home-assistant, sunpanel]
+           # 当年实跑约 17 个容器，另有漫画库、聚合搜索、博客等
+           # ——那几个本手册未收录，这里只列菜单里有的
 ```
 
 **全部三个职能（旁路由 / 容器宿主 / git 仓库）都在这一个 VM 里。**

@@ -19,8 +19,8 @@ proxy:     nikki                 # mihomo 内核
 storage:   [internal, das-enclosure]
 ingress:   tunnel + port-forward # 隧道为主，一条直连口给大流量媒体
 services:  [jellyfin, navidrome, aria2, sunshine-moonlight,     # 原生跑
-            immich, home-assistant, vaultwarden, searxng,
-            sunpanel, lanraragi]                              # 容器跑
+            immich, home-assistant, vaultwarden, sunpanel]     # 容器跑
+           # 实机上另有聚合搜索、漫画库等，本手册未收录
 ```
 
 ## 什么条件下选它

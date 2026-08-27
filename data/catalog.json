@@ -1,13 +1,11 @@
 {
-  "commit": "e0a70b0",
+  "commit": "7ad3dd8",
   "goals": [
     "下载",
     "从外网访问",
     "多媒体影音",
     "密码与隐私",
     "常驻 AI agent",
-    "建站",
-    "文件同步",
     "旁路由 / 全屋代理",
     "智能家居",
     "照片备份",
@@ -16,13 +14,11 @@
   ],
   "categories": [
     "download",
-    "files",
     "home",
     "media",
     "privacy",
     "remote",
-    "tools",
-    "web"
+    "tools"
   ],
   "layers": [
     {
@@ -208,39 +204,6 @@
       "doc": "services/home-assistant.md"
     },
     {
-      "id": "hugo",
-      "name": "Hugo",
-      "category": "web",
-      "goals": [
-        "建站"
-      ],
-      "summary": "静态网站生成器",
-      "blurb": "用 Markdown 写文章，它生成一堆纯静态网页，交给服务器直接提供。\n**没有常驻进程、没有数据库**，所以几乎不吃资源、也几乎没有安全维护负担——\n这正是它比传统博客系统省心的地方。",
-      "priority": "P2",
-      "requires": {
-        "arch": [
-          "x86_64",
-          "aarch64"
-        ],
-        "substrate": [
-          "bare-metal",
-          "vm",
-          "container"
-        ]
-      },
-      "conflicts": [],
-      "risk": "none",
-      "needs_human": false,
-      "docs": [
-        {
-          "type": "official",
-          "title": "Hugo 官方文档",
-          "url": "https://gohugo.io/documentation/"
-        }
-      ],
-      "doc": "services/hugo.md"
-    },
-    {
       "id": "immich",
       "name": "Immich",
       "category": "media",
@@ -322,39 +285,6 @@
       "doc": "services/jellyfin.md"
     },
     {
-      "id": "lanraragi",
-      "name": "LANraragi",
-      "category": "media",
-      "goals": [
-        "多媒体影音"
-      ],
-      "summary": "漫画与图集库",
-      "blurb": "把压缩包形式的漫画、画集丢进去，它负责整理、生成缩略图、提供在线阅读。\n手机和平板浏览器里直接看，不用先解压再传来传去。",
-      "priority": "P2",
-      "requires": {
-        "arch": [
-          "x86_64",
-          "aarch64"
-        ],
-        "substrate": [
-          "bare-metal",
-          "vm",
-          "container"
-        ]
-      },
-      "conflicts": [],
-      "risk": "low",
-      "needs_human": false,
-      "docs": [
-        {
-          "type": "official",
-          "title": "LANraragi 项目与文档",
-          "url": "https://github.com/Difegue/LANraragi"
-        }
-      ],
-      "doc": "services/lanraragi.md"
-    },
-    {
       "id": "navidrome",
       "name": "Navidrome",
       "category": "media",
@@ -386,39 +316,6 @@
         }
       ],
       "doc": "services/navidrome.md"
-    },
-    {
-      "id": "searxng",
-      "name": "SearXNG",
-      "category": "privacy",
-      "goals": [
-        "密码与隐私"
-      ],
-      "summary": "不追踪的聚合搜索",
-      "blurb": "它自己不索引网页，而是替你去问一堆搜索引擎再把结果汇总起来。\n好处是**不记录你搜过什么、不给你画像**，也没有广告。\n⚠️ 装好了搜不出东西是常见故障，和你的网络出口有关，选之前先看说明。",
-      "priority": "P2",
-      "requires": {
-        "arch": [
-          "x86_64",
-          "aarch64"
-        ],
-        "substrate": [
-          "bare-metal",
-          "vm",
-          "container"
-        ]
-      },
-      "conflicts": [],
-      "risk": "low",
-      "needs_human": false,
-      "docs": [
-        {
-          "type": "official",
-          "title": "SearXNG 官方文档",
-          "url": "https://docs.searxng.org/"
-        }
-      ],
-      "doc": "services/searxng.md"
     },
     {
       "id": "sunpanel",
@@ -490,39 +387,6 @@
       "doc": "services/sunshine-moonlight.md"
     },
     {
-      "id": "syncthing",
-      "name": "Syncthing",
-      "category": "files",
-      "goals": [
-        "文件同步"
-      ],
-      "summary": "设备之间的点对点文件同步",
-      "blurb": "在几台设备之间保持一个文件夹同步，**不经过任何第三方服务器**，直接点对点传。\n可以理解为「不用付费、不限容量、数据不出门的网盘同步」。\n⚠️ 它同步的是「状态」——一端删了另一端也会删。**它不是备份**，别当备份用。",
-      "priority": "P2",
-      "requires": {
-        "arch": [
-          "x86_64",
-          "aarch64"
-        ],
-        "substrate": [
-          "bare-metal",
-          "vm",
-          "container"
-        ]
-      },
-      "conflicts": [],
-      "risk": "medium",
-      "needs_human": true,
-      "docs": [
-        {
-          "type": "official",
-          "title": "Syncthing 官方文档",
-          "url": "https://docs.syncthing.net/"
-        }
-      ],
-      "doc": "services/syncthing.md"
-    },
-    {
       "id": "vaultwarden",
       "name": "Vaultwarden",
       "category": "privacy",
@@ -558,39 +422,6 @@
         }
       ],
       "doc": "services/vaultwarden.md"
-    },
-    {
-      "id": "webdav",
-      "name": "WebDAV",
-      "category": "files",
-      "goals": [
-        "文件同步"
-      ],
-      "summary": "最通用的简易文件服务",
-      "blurb": "开一个目录出来，让别的设备当网络硬盘用。\n它的价值在于**几乎什么都能连**——系统自带的文件管理器、各类 App 大多原生支持，\n不用装专门的客户端。常用来给某个 App 当配置同步的后端。",
-      "priority": "P2",
-      "requires": {
-        "arch": [
-          "x86_64",
-          "aarch64"
-        ],
-        "substrate": [
-          "bare-metal",
-          "vm",
-          "container"
-        ]
-      },
-      "conflicts": [],
-      "risk": "medium",
-      "needs_human": false,
-      "docs": [
-        {
-          "type": "official",
-          "title": "hacdias/webdav（一种轻量实现）",
-          "url": "https://github.com/hacdias/webdav"
-        }
-      ],
-      "doc": "services/webdav.md"
     }
   ],
   "chapters": [

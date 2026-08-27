@@ -12,16 +12,11 @@
 | [Immich](immich.md) | 自托管的照片与视频库 |
 | [Jellyfin](jellyfin.md) | 自托管的影音库与播放服务 |
 | [Navidrome](navidrome.md) | 自托管的音乐库与流媒体服务 |
-| [LANraragi](lanraragi.md) | 漫画与图集库 |
 | [aria2 + AriaNg](aria2.md) | 常驻的下载器，配一个网页界面 |
 | [Home Assistant](home-assistant.md) | 本地优先的智能家居中枢 |
 | [Vaultwarden](vaultwarden.md) | 自托管的密码库 ·&nbsp;需你拍板 |
-| [SearXNG](searxng.md) | 不追踪的聚合搜索 |
-| [Syncthing](syncthing.md) | 设备之间的点对点文件同步 ·&nbsp;需你拍板 |
-| [WebDAV](webdav.md) | 最通用的简易文件服务 |
 | [Sunshine + Moonlight](sunshine-moonlight.md) | 低延迟的桌面与游戏串流 ·&nbsp;需你拍板 |
 | [SunPanel](sunpanel.md) | 服务导航面板 |
-| [Hugo](hugo.md) | 静态网站生成器 |
 
 标「需你拍板」的，装之前必须和用户确认——不是难装，是**决定本身**要人来做。
 
@@ -33,6 +28,15 @@
 3. 按 `verify` 逐个验收，**从客户端跑**
 
 装法与目录布局见 [`_deployment.md`](_deployment.md)；字段含义见 [`_schema.md`](_schema.md)。
+
+## 这里为什么只有 8 个
+
+**收录标准是"手册能对它负责"**：这 8 个都在真实硬件上跑过，
+而且它们的坑是手册作者亲自踩过、能写出症状和修法的。
+
+自托管生态里好东西远不止这些。**手册没收录 ≠ 不该用**——
+但那意味着你得自己去读它的官方文档、自己踩它的坑，
+本手册的判据（存储落点、验收视角、conflicts）仍然适用。
 
 ## 不在这里的
 

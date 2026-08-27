@@ -173,6 +173,10 @@ Index first, never scan everything. Fixed order:
    Match → follow that verified path. No match → solve layer by layer in [`layers/`](layers/).
 4. Read only the layers you hit.
 
+When something breaks, take the other path: go straight to
+[`pitfalls/README.md`](pitfalls/README.md) and look it up **by symptom**, not by topic.
+These pitfalls share one trait — the symptom does not point at the cause.
+
 [`archive/`](archive/) is historical research material, **not a current plan. Do not execute it.**
 
 ## Selection rules

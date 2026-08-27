@@ -155,5 +155,14 @@ for p in sorted(ROOT.rglob("*.md")):
             bad(f"{p.relative_to(ROOT)}:{i}: 标题含 emoji/圈码，会产生不稳定锚点 — {m.group(1)!r}")
 if len(fails) == n: ok("标题无 emoji/圈码")
 
+# 服务菜单必须与目录一一对应 —— 新增服务忘了挂进菜单，读者就永远看不到它
+menu = (ROOT / "services" / "README.md").read_text(encoding="utf-8")
+svc_ids = {m["fm"]["id"] for m in mods.values() if m["fm"].get("layer") == "service"}
+missing = sorted(i for i in svc_ids if f"]({i}.md)" not in menu)
+if missing:
+    bad(f"services/README.md 漏了：{missing}")
+else:
+    ok("服务菜单与目录一致")
+
 print(f"\n  共 {len(mods)} 个模块")
 sys.exit(1 if fails else 0)

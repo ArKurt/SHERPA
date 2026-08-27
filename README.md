@@ -44,7 +44,7 @@ NAS      →  服务器
 以及**哪些事必须停下来问你**（改错了会全家断网或擦掉硬盘的那些）。
 
 **想自己读**：从 [`00-probe.md`](00-probe.md) 进，不用通读。
-出问题了直接查 [坑典](appendix/pitfalls.md)，那是按**症状**索引的。
+出问题了直接查 [排障区](pitfalls/)，那是按**症状**索引的。
 
 ## 目录
 
@@ -58,7 +58,7 @@ NAS      →  服务器
 | [services/_deployment.md](services/_deployment.md) | 服务怎么摆——目录布局、版本、端口表 |
 | [ops/](ops/) | 开机自恢复、冷启动验收、备份、**凭证**、唤醒、迁移退役 |
 | [advanced/](advanced/) | 常驻 AI harness（可选） |
-| [appendix/pitfalls.md](appendix/pitfalls.md) | **坑典** —— 出问题了按症状查这里 |
+| [**pitfalls/**](pitfalls/) | **排障区** —— 出问题了按症状查这里 |
 | [archive/](archive/) | 历史素材，**不是现行方案** |
 
 ### 六层主干
@@ -163,7 +163,7 @@ first — that's the operating contract, including **what it must stop and ask y
 ## Layout
 
 `00-probe.md` → `layers/` (six-layer trunk) → `blueprints/` (three reference architectures)
-→ `services/` (all optional) → `ops/` → `appendix/pitfalls.md`
+→ `services/` (all optional) → `ops/` → `pitfalls/` (indexed by symptom)
 
 `archive/` holds historical research material — **not a current plan.**
 

@@ -9,7 +9,7 @@
     scripts/build-catalog.py            # 生成 data/catalog.json 与 wizard.html
     scripts/build-catalog.py --check    # 只校验是否与源同步，不写文件
 """
-import json, pathlib, sys, subprocess, hashlib
+import json, pathlib, re, sys, subprocess
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -142,8 +142,11 @@ def main():
             b = {k: v for k, v in cat.items() if k != "commit"}
             if a != b:
                 fails.append("data/catalog.json 与 markdown 源不同步——重新生成")
+        # 比对时抹掉 commit —— 它每次提交都会变，否则这条检查永远误报
+        strip = lambda t: re.sub(r'"commit":\s*"[^"]*"', '"commit": ""', t)
         html = render_html(cat)
-        if html is not None and OUT_HTML.exists() and OUT_HTML.read_text(encoding="utf-8") != html:
+        if (html is not None and OUT_HTML.exists()
+                and strip(OUT_HTML.read_text(encoding="utf-8")) != strip(html)):
             fails.append("wizard.html 与源不同步——重新生成")
         for f in fails:
             print(f"  \033[31mFAIL\033[0m {f}")

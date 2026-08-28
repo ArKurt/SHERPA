@@ -3,8 +3,8 @@
 # 只登记域名，不含路径。以 # 开头为注释。
 
 # 标准与规范
+# creativecommons.org 只出现在 LICENSE 里（检查器只扫 *.md，扫不到它），别当成废条目删掉
 creativecommons.org
-datatracker.ietf.org
 www.rfc-editor.org
 
 # 服务的官方文档
@@ -40,5 +40,4 @@ www.anthropic.com
 help.openai.com
 
 # 文档里用作占位的保留域名（RFC 2606）
-example.com
-example.org
+# check.sh 已用正则豁免 example.(com|org|net)，这里不必再登记一遍

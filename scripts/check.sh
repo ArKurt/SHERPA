@@ -54,6 +54,20 @@ check_redaction() {
   [ -z "$unknown" ] && ok "外链域名均已登记" || {
     bad "发现未登记的外链域名（确认无误后加进 scripts/allowed-domains.txt）"; echo "$unknown" | sed 's/^/       /'; }
 
+  # 反向：登记了却没人引用的条目。上一轮清理服务时留下过一批废条目，
+  # 只查单向发现不了——白名单会越积越长，最后没人知道哪条还作数。
+  # 这是提示不是失败：预先登记一个即将用到的域名是合理的。
+  local stale used_domains
+  used_domains=$(grep -rhoE 'https?://[A-Za-z0-9._-]+' --include='*.md' \
+      --exclude-dir=archive --exclude-dir=reviews . 2>/dev/null \
+    | sed -E 's|https?://||' | sort -u)
+  stale=$(grep -vE '^\s*(#|$)' scripts/allowed-domains.txt \
+    | grep -vxFf <(echo "$used_domains") || true)
+  [ -z "$stale" ] && ok "白名单无废条目" || {
+    printf '  \033[33m注意\033[0m 白名单里这些条目当前没有任何 .md 引用：\n'
+    echo "$stale" | sed 's/^/       /'
+    printf '       （用不到就删掉；确实要留请在上一行加注释说明为什么）\n'; }
+
   # 内部主机名 / 内网标识 —— 公开仓库里不该出现
   hits=$(grep -rniE '\b(<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>)\b' \
          --include='*.md' --include='*.html' --include='*.py' --include='*.sh' --include='*.json' . 2>/dev/null \

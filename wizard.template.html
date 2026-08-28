@@ -277,6 +277,7 @@ const OSES = [
   ["windows","Windows","要装服务通常得重装成 Linux，或者用它的 Linux 子系统"],
   ["macos","macOS","可以直接用"],
   ["linux","Linux","最顺的路径"],
+  ["nas-os","NAS 自带系统","群晖 DSM / TrueNAS 一类，能装容器但底座受厂商限制"],
   ["unknown","不确定 / 现在是空的",""],
 ];
 const CONSTRAINTS = [
@@ -326,7 +327,13 @@ function renderStep1(){
   $("#q-os").innerHTML = `<div class="label"><span class="idx">01b</span>那台机器现在装的是什么系统？</div>
     <div class="hint">如果是 Windows，多半要重装——那会擦掉盘上的数据，所以助手一定会先问你。</div>
     <div class="opts cols">${OSES.map(o=>optHTML(o[0],o[1],o[2],S.os===o[0])).join("")}</div>`;
-  $("#q-os").style.display = (S.dev.includes("laptop")||S.dev.includes("desktop")) ? "" : "none";
+  /* 这一问原来只对 laptop/desktop 显示，于是 mini / NAS / SBC 用户全程 S.os === null，
+     下游四个消费点（清单的"当前系统"、macOS 全盘加密警告、Windows 重装警告、
+     施工序的 ⚠ 问我）**静默失效**——Windows 迷你主机用户拿到的是一份没有任何
+     擦盘提示的施工序。除了"什么都没有"，一律要问。 */
+  const askOS = S.dev.length && !(S.dev.length===1 && S.dev[0]==="none");
+  $("#q-os").style.display = askOS ? "" : "none";
+  if(!askOS) S.os = null;          // 改答案回"什么都没有"时别留下陈旧值
   $("#q-goal").innerHTML = `<div class="label"><span class="idx">02</span>想用它实现什么？</div>
     <div class="hint">可多选。不确定的先不选，第二步看到具体服务时会更清楚。</div>
     <div class="opts cols">${CATALOG.goals.map(g=>optHTML(g,g,"",S.goals.includes(g))).join("")}</div>`;
@@ -406,8 +413,11 @@ function buildSheet(){
   // 机器可读头：agent 不用解析散文就能拿到向量与计数
   // 两类不同的"未定"：机器能查的 vs 要读手册/问人才能定的。
   // 这个区分和 00-probe.md 的分法一致，别混。
-  const probe   = Object.entries(v).filter(([,x])=>String(x).includes("待实测")).map(([k])=>k);
-  const undecid = Object.entries(v).filter(([,x])=>/待定|待确认/.test(String(x))).map(([k])=>k);
+  // 按"含不含 ⟨"分类，不按措辞关键字——关键字匹配漏过 ingress 和 addressing 那两种
+  // 写法，它们既是 null 又不在任何待办清单里，照单开工的 agent 永远不会回头解决。
+  const open    = ([,x]) => String(x).includes("⟨");
+  const probe   = Object.entries(v).filter(e=>open(e) && /待实测/.test(String(e[1]))).map(([k])=>k);
+  const undecid = Object.entries(v).filter(e=>open(e) && !/待实测/.test(String(e[1]))).map(([k])=>k);
   L.push(`---`);
   L.push(`generated: ${now}`);
   L.push(`handbook: ${CATALOG.commit}`);
@@ -440,15 +450,24 @@ function buildSheet(){
   L.push(``,`⟨尖括号⟩ 里的是**问卷问不出来的**，需要你实地探测或与用户确认。**不要猜。**`);
 
   L.push(``,`## 三、动手前先实测这些`,``);
+  // 知道系统就只给那一套命令；不知道就两套都给，别让 Mac 用户照着 lsblk 敲
+  const perOS = (linux, mac) =>
+    S.os==="macos" ? mac
+    : (S.os==="linux"||S.os==="nas-os") ? linux
+    : `Linux：${linux}；macOS：${mac}`;
   L.push(`- [ ] \`uname -srm\` —— 架构与平台 → \`00-probe.md\``);
   L.push(`- [ ] 能不能跑虚拟机（Linux 看 \`/dev/kvm\`；macOS 看 \`sysctl kern.hv_support\`）`);
-  L.push(`- [ ] 盘的文件系统与总线（\`df -T\` / \`lsblk -o NAME,TRAN\`）→ **决定数据库能落在哪**`);
+  L.push(`- [ ] 盘的文件系统与总线（`
+       + perOS("\`df -T\` / \`lsblk -o NAME,TRAN\`", "\`mount\` / \`diskutil info <盘>\`")
+       + `）→ **决定数据库能落在哪**`);
   L.push(`- [ ] 网口数量 —— 只有一个网口时，高风险操作必须在能物理接触机器时做`);
   if(S.con.existing!=="none")
     L.push(`- [ ] ★ **盘点已有容器/端口/数据卷**，并从客户端记下每个既有服务的当前状态`
          + ` —— 没有这个基线，改完网络出问题分不清新旧 → \`00-probe.md\``);
   if(S.goals.includes("旁路由 / 全屋代理"))
-    L.push(`- [ ] ★ **IPv6 现状**（\`ip -6 route show default\`；\`curl -4\` 与 \`curl -6\` 对比出口）`
+    L.push(`- [ ] ★ **IPv6 现状**（`
+         + perOS("\`ip -6 route show default\`", "\`route -n get -inet6 default\`")
+         + `；\`curl -4\` 与 \`curl -6\` 对比出口）`
          + ` —— 只管 IPv4 就说"全屋"是超出实测范围 → \`layers/3-proxy-stack.md\``);
   if(S.goals.includes("从外网访问") && S.con.wan!=="public")
     L.push(`- [ ] 路由器 WAN 口地址是不是运营商大内网 → 决定层 6 的可选范围`);
@@ -519,18 +538,24 @@ function buildSheet(){
   step("主机系统与容器运行时就位","layers/1-substrate.md", S.os==="windows"?"⚠ 问我":"");
   step("服务器固定 IP","layers/2-gateway.md","⚠ 问我");
   step("★ 定下每个服务的数据落点","layers/5-storage.md","★ 装服务前必须完成");
-  if(S.goals.includes("旁路由 / 全屋代理")){
+  /* 这三步原来看的是"目标里有没有旁路由"，于是向量已经判成 client-only
+     （不建旁路由）时，施工序照样让人去建——机器可读头和施工序直接顶牛。
+     改看 v.gateway：已判成不建的就不排，待定的才排。 */
+  if(v.gateway === "client-only"){
+    step("在要用代理的设备上各装一个客户端","layers/3-proxy-stack.md");
+  } else if(v.gateway !== "none"){
     step("旁路由形态与推进顺序（先隔离网络，再桥接）","layers/2-gateway.md","⚠ 问我");
     step("装代理栈（只装一套）","layers/3-proxy-stack.md");
     step("分流与 DNS","layers/4-routing-dns.md");
   }
   step("内网寻址（服务怎么被访问到）","layers/7-lan-addressing.md");
-  step("★ 拔盘演练","layers/5-storage.md","★ 只有还没有真实数据时做才安全");
   // install_when: last 的排在其它服务之后 —— 比如导航面板要先有导航对象
   [...chosen].sort((a,b)=>(a.install_when==='last')-(b.install_when==='last'))
     .forEach(s=>step(`装 ${s.name}`, s.doc,
       (s.needs_human?"⚠ 问我":"") + (s.install_when==='last'?"（要等其它服务就位）":"")));
   step("开机自恢复","ops/boot-persistence.md");
+  // 演练要拔的是服务正在用的那块盘——装服务之前排这一步，演练根本做不了
+  step("★ 拔盘演练","layers/5-storage.md","★ 服务已就位、真实数据还没灌进去，只有这个窗口安全");
   step("真断电，走冷启动验收","ops/cold-start-acceptance.md",
        (S.con.scope==="all"||S.con.existing==="some")?"⚠ 问我：需要停机窗口":"");
   step("★ 备份配好并验证过能恢复","ops/backup.md","★ 灌真实数据前必须完成");
@@ -595,8 +620,12 @@ function sync(){
   $("#ftr").textContent = `anyserver · 手册 ${CATALOG.commit} · ${CATALOG.services.length} 个可选服务`;
 }
 /* 由 scripts/wizard.py 服起来时是同源 http，页面可以直接把清单 POST 回去；
-   双击 file:// 打开时不行（源是 null，浏览器拦），退回手动复制。 */
-const SERVED = location.protocol === "http:" || location.protocol === "https:";
+   双击 file:// 打开时不行（源是 null，浏览器拦），退回手动复制。
+   令牌是 wizard.py 注入进它自己服出去的那份页面的——没有令牌就说明
+   这份页面不是它服的（比如用户自己 python -m http.server 起的），
+   那就不必白跑一趟 POST，直接走手工。 */
+const SERVED = (location.protocol === "http:" || location.protocol === "https:")
+            && typeof window.WIZARD_TOKEN === "string" && window.WIZARD_TOKEN.length > 0;
 
 function renderSummary(){
   const v = META.vector || {};
@@ -628,9 +657,16 @@ function handoff(sheet){
     return;
   }
   set("wait","…",`<b>正在交回给你的助手…</b>`);
-  fetch("/submit",{method:"POST",headers:{"Content-Type":"application/json"},
-                   body:JSON.stringify({sheet})})
-    .then(r=>{ if(!r.ok) throw new Error(r.status);
+  // 加超时：服务还在但卡住时，TCP 会一直挂着，页面不能永远停在"正在交回…"
+  const ctl = new AbortController();
+  const timer = setTimeout(()=>ctl.abort(), 15000);
+  fetch("/submit",{method:"POST",signal:ctl.signal,
+                   headers:{"Content-Type":"application/json",
+                            "X-Wizard-Token":window.WIZARD_TOKEN},
+                   body:JSON.stringify({sheet,token:window.WIZARD_TOKEN})})
+    .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(j=>{ // 只认它回的那句 ok——见过对任何路径都回 200 的静态服务器
+      if(!j || j.ok !== true) throw new Error("unexpected body");
       set("ok","✓",
         `<b>已交回给你的助手。</b>
          <span class="sub2">你可以关掉这个页面了。
@@ -641,7 +677,8 @@ function handoff(sheet){
         `<b>自动交回失败，请手工复制。</b>
          <span class="sub2">展开下面的「完整清单」，复制给你的助手。</span>`);
       $("#sheetbox").open = true;
-    });
+    })
+    .finally(()=>clearTimeout(timer));
 }
 
 $("#next").onclick=()=>{

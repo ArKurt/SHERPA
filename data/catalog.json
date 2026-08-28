@@ -1,5 +1,5 @@
 {
-  "commit": "6b98a77",
+  "commit": "783c3be",
   "goals": [
     "下载",
     "从外网访问",
@@ -186,6 +186,10 @@
           "bare-metal",
           "vm",
           "container"
+        ],
+        "storage": [
+          "internal",
+          "das-enclosure"
         ]
       },
       "conflicts": [],
@@ -267,6 +271,10 @@
           "bare-metal",
           "vm",
           "container"
+        ],
+        "storage": [
+          "internal",
+          "das-enclosure"
         ]
       },
       "conflicts": [],
@@ -305,6 +313,10 @@
           "bare-metal",
           "vm",
           "container"
+        ],
+        "storage": [
+          "internal",
+          "das-enclosure"
         ]
       },
       "conflicts": [],
@@ -338,6 +350,10 @@
           "bare-metal",
           "vm",
           "container"
+        ],
+        "storage": [
+          "internal",
+          "das-enclosure"
         ]
       },
       "conflicts": [],

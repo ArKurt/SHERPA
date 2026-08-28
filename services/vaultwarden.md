@@ -58,9 +58,26 @@ Bitwarden 客户端依赖浏览器的加密 API，**只在安全上下文里可�
 **没有备份的密码库比没有密码库更危险**——你会把所有密码都换成只存在那里的强随机串，
 然后某天它没了。
 
-- 数据目录（含 SQLite 数据库和附件）定期复制到**另一块物理盘**
+⚠️ **不要在服务运行时直接 `cp db.sqlite3`。** 可能复制到一个写入进行到一半的文件——
+拷的时候不报错，等到要恢复才发现副本是坏的。上游给了两条正确做法：
+
+```sh
+# 首选：Vaultwarden 1.32.1+ 自带的备份命令
+docker compose exec vaultwarden /vaultwarden backup
+
+# 或用 SQLite 的 Online Backup API（服务不必停），在宿主上对数据目录跑
+sqlite3 <数据目录>/db.sqlite3 ".backup '<备份目录>/db.sqlite3'"
+```
+
+数据库之外还要一并带走：`attachments/`、`sends/`、`rsa_key.pem`、`config.json`。
+
+- 备份放到**另一块物理盘**
 - **试一次恢复。** 没验证过的备份不算备份
-- 备份本身是加密的（用主密码派生的密钥），但仍不要放进任何公开位置
+- ⚠️ **备份整体不是加密的。** 保险库条目由各用户的主密码加密，
+  但数据目录里还有明文的敏感内容——`config.json` 就含 admin token、SMTP 凭证。
+  上游因此建议**对备份再加一层加密**
+  （*Adding an extra layer of encryption on your backups would generally be a good idea*）。
+  **放上 NAS 或云盘之前先加密**，别把它当成"反正已经加密过了"。
 
 ## 存储
 

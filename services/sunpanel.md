@@ -17,6 +17,7 @@ docs:
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]
+  storage: [internal, das-enclosure]      # 配置本身是个小数据库
 conflicts: []
 risk: none
 needs_human: false

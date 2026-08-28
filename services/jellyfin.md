@@ -20,6 +20,7 @@ docs:
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]
+  storage: [internal, das-enclosure]      # 配置与元数据库落点；媒体库可另择
 conflicts: []
 risk: low
 needs_human: false

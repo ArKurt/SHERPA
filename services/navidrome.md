@@ -18,6 +18,7 @@ docs:
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]
+  storage: [internal, das-enclosure]      # SQLite 落点；音乐库可另择
 conflicts: []
 risk: low
 needs_human: false

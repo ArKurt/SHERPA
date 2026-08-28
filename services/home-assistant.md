@@ -20,6 +20,7 @@ docs:
 requires:
   arch: [x86_64, aarch64]
   substrate: [bare-metal, vm, container]
+  storage: [internal, das-enclosure]      # 配置目录频繁小量写入
 conflicts: []
 risk: low
 needs_human: false

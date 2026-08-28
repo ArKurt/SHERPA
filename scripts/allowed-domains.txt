@@ -41,3 +41,5 @@ help.openai.com
 
 # 文档里用作占位的保留域名（RFC 2606）
 # check.sh 已用正则豁免 example.(com|org|net)，这里不必再登记一遍
+
+

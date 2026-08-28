@@ -61,7 +61,10 @@ check_redaction() {
   used_domains=$(grep -rhoE 'https?://[A-Za-z0-9._-]+' --include='*.md' \
       --exclude-dir=archive --exclude-dir=reviews . 2>/dev/null \
     | sed -E 's|https?://||' | sort -u)
-  stale=$(grep -vE '^\s*(#|$)' scripts/allowed-domains.txt \
+  # 上一行有说明注释的条目跳过——那是"我知道它没被 .md 引用，理由如下"的显式声明。
+  # 不跳的话会有一条永远存在的黄警，而一条永远存在的"注意"会训练所有人忽略"注意"。
+  stale=$(awk '/^[[:space:]]*#/{c=1;next} /^[[:space:]]*$/{c=0;next} {if(!c)print; c=0}' \
+      scripts/allowed-domains.txt \
     | grep -vxFf <(echo "$used_domains") || true)
   [ -z "$stale" ] && ok "白名单无废条目" || {
     printf '  \033[33m注意\033[0m 白名单里这些条目当前没有任何 .md 引用：\n'

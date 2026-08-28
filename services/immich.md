@@ -49,7 +49,7 @@ rollback: |
 |---|---|
 | 内置盘（ext4/btrfs/xfs/APFS） | ✅ |
 | 外接硬盘柜，原生文件系统 | ✅ |
-| **exFAT** | ❌ 官方写明不支持（*not supported*）——无 POSIX 权限模型。（另外基础格式无日志，断电损坏的风险是机制推论，不是官方原话） |
+| **exFAT** | ❌ 官方写明不支持（*not supported*） |
 | **网络挂载（SMB/NFS）** | ❌ **官方不支持**——安装文档写明 *Network shares are not supported for the database*，requirements 页要求 *never a network share of any kind* |
 | **USB 移动硬盘** | ❌ 掉线一次可能就要从备份恢复 |
 
@@ -62,7 +62,7 @@ rollback: |
 | 落点 | 照片库 |
 |---|---|
 | 原生文件系统（ext4/btrfs/xfs/APFS） | ✅ |
-| **exFAT** | ⚠️ 官方要求文件系统支持 *user/group ownership and permissions*，exFAT 不满足——**预期会出权限问题**。需按容器实际 UID/GID 挂载后验收，见下 |
+| **exFAT** | ⚠️ 需按容器实际 UID/GID 挂载后验收，见下 |
 | 网络挂载 | ⚠️ 可行但要调挂载参数（uid/gid），先小规模验证 |
 
 **外接盘出厂常是 exFAT。** 拿来放影音库直接可用；拿来当 Immich 的上传目录要多做一步——

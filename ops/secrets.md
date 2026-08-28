@@ -161,3 +161,7 @@ wait "$pid" 2>/dev/null
 - 示例里的占位符约定 → [`../appendix/redaction.md`](../appendix/redaction.md)
 - 公网入口的凭证 → [层 6](../layers/6-ingress.md)
 - 服务的部署形态与 `.env` 落点 → [`../services/_deployment.md`](../services/_deployment.md)
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#ops-secrets)

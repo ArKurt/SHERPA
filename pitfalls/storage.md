@@ -119,3 +119,7 @@ docker compose exec <服务> sh -c 'touch /挂载点/.wtest && rm /挂载点/.wt
 
 > 冷启动验收清单里"服务看到的是真实数据，不是空目录"这条，
 > 就是为这个坑写的。**只确认"服务起来了"会漏掉它。**
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#pitfalls-storage)

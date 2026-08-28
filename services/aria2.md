@@ -76,3 +76,7 @@ exFAT 不存逐文件属主，得在挂载时把整卷映射成容器的 UID/GID
 ## 架构
 
 有 multi-arch 镜像，也可以直接装发行版包。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-aria2)

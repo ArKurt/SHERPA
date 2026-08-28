@@ -265,3 +265,7 @@ Claude 相关只有 **3 条**、页面标注的最后更新是 **2025-06-06**，
 确认防火墙干净，再装新的。
 
 这条在手册里是 `conflicts` 硬约束，不是建议。→ [层 3](../layers/3-proxy-stack.md)
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#pitfalls-proxy-dns)

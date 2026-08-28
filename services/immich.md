@@ -49,8 +49,8 @@ rollback: |
 |---|---|
 | 内置盘（ext4/btrfs/xfs/APFS） | ✅ |
 | 外接硬盘柜，原生文件系统 | ✅ |
-| **exFAT** | ❌ 官方写明不支持（*not supported*）；无逐文件属主，且基础格式无日志 |
-| **网络挂载（SMB/NFS）** | ❌ **官方文档明确禁止** |
+| **exFAT** | ❌ 官方写明不支持（*not supported*）——无 POSIX 权限模型。（另外基础格式无日志，断电损坏的风险是机制推论，不是官方原话） |
+| **网络挂载（SMB/NFS）** | ❌ **官方不支持**——安装文档写明 *Network shares are not supported for the database*，requirements 页要求 *never a network share of any kind* |
 | **USB 移动硬盘** | ❌ 掉线一次可能就要从备份恢复 |
 
 **照片库本身**（原图存放）对**掉线风险**宽松得多，外接盘、网络挂载都可以。
@@ -62,7 +62,7 @@ rollback: |
 | 落点 | 照片库 |
 |---|---|
 | 原生文件系统（ext4/btrfs/xfs/APFS） | ✅ |
-| **exFAT** | ⚠️ 需按容器实际 UID/GID 挂载后验收，见下 |
+| **exFAT** | ⚠️ 官方要求文件系统支持 *user/group ownership and permissions*，exFAT 不满足——**预期会出权限问题**。需按容器实际 UID/GID 挂载后验收，见下 |
 | 网络挂载 | ⚠️ 可行但要调挂载参数（uid/gid），先小规模验证 |
 
 **外接盘出厂常是 exFAT。** 拿来放影音库直接可用；拿来当 Immich 的上传目录要多做一步——
@@ -85,7 +85,11 @@ exFAT 不存逐文件属主，得在**挂载时**把整卷映射成容器实际�
 
 ## 版本必须钉死且一致
 
-**主服务和机器学习服务必须是同一个版本号。** 版本错配会让主服务进入崩溃重启循环。
+**把主服务和机器学习服务钉在同一个版本号上。**
+
+这是社区的普遍实践——**官方文档没有明文要求**，但 release notes 和社区 issue 都按这个假设走。
+手册这边观察到过一次版本错配之后主服务进入崩溃重启循环（[锚点 A](../blueprints/a-single-laptop.md)），
+一次事故不足以写成"必然"，但钉死版本的成本是零，没有理由不做。
 
 不要用 `latest`。在 compose 里写死具体版本，升级时两个一起改。
 
@@ -124,3 +128,7 @@ Immich 自带定时数据库备份，**先确认它开着**。备份文件默认
 
 主流版本都发 multi-arch，ARM 可用。但数据库镜像（带向量扩展的 Postgres）
 要单独确认有你的架构构建。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-immich)

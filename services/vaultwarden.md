@@ -102,3 +102,7 @@ sqlite3 <数据目录>/db.sqlite3 ".backup '<备份目录>/db.sqlite3'"
 ## 架构
 
 官方发 multi-arch。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-vaultwarden)

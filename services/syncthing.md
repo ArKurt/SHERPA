@@ -66,3 +66,7 @@ rollback: |
 ## 架构
 
 官方发 multi-arch。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-syncthing)

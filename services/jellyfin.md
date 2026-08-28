@@ -72,3 +72,7 @@ Jellyfin 只是把文件流过去，几乎不耗 CPU。
 
 大媒体库首次扫描会持续很久并大量读盘。**如果媒体在外接盘或网络挂载上，
 这段时间的 I/O 压力最容易触发掉线。** 先扫小目录验证通路，再放全量。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-jellyfin)

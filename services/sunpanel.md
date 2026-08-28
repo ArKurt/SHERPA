@@ -54,3 +54,7 @@ rollback: |
 ## 架构
 
 有 multi-arch 镜像。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-sunpanel)

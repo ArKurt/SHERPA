@@ -289,3 +289,7 @@ verify: |
 ## 下一层
 
 → [层 5 · 存储](5-storage.md)
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#layers-4-routing-dns)

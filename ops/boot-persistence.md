@@ -129,3 +129,7 @@ Apple 的说明是：FileVault 打开时自动登录不可用，**必须人工�
 配完之后**必须真的重启一次验证**。见 [`cold-start-acceptance.md`](cold-start-acceptance.md)。
 
 不重启验证的自启动配置，等于没配。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#ops-boot-persistence)

@@ -114,8 +114,10 @@ options: [none, vm-openwrt, container-macvlan, dedicated-box, client-only]
 
 1. **内核不是你的** —— 容器共用宿主内核。宿主内核缺 tproxy/tun 模块、或厂商 NAS 精简过，
    代理就是起不来，而且报错往往指向别处
-2. **macvlan 的宿主不可达问题** —— 宿主机默认**访问不到**自己上面 macvlan 容器的 IP。
-   这会让"宿主上的服务反代旁路由面板"这类需求直接失败
+2. **macvlan 默认把宿主隔离在外** —— 宿主机访问不到自己上面 macvlan 容器的 IP。
+   这会让"宿主上的服务反代旁路由面板"这类需求直接失败。
+   要让宿主够得着，得按 Docker 官方给的做法另外设计（给容器再接一张 bridge，
+   或在宿主上建一个 macvlan 接口），**并且验收**——别默认它通
 3. **重启与自愈** —— 容器重启后网络配置、防火墙规则要能自己回来，这需要额外做工作
 
 **host 网络模式是明确的反例**：它让代理直接接管宿主的网络栈，和 NAS 自身的职责打架，
@@ -246,3 +248,7 @@ verify: |
 ## 下一层
 
 → [层 3 · 代理栈](3-proxy-stack.md)
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#layers-2-gateway)

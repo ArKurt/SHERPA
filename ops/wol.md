@@ -64,3 +64,7 @@ verify: |
 
 配合 [`../services/sunshine-moonlight.md`](../services/sunshine-moonlight.md)
 可以做到"远程唤醒 + 串流进去"，把一台平时关着的机器变成随取随用的远程工作站。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#ops-wol)

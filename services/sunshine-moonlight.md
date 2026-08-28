@@ -67,3 +67,7 @@ Moonlight 是客户端。
 ## 相关
 
 配合 [`ops/wol.md`](../ops/wol.md) 可以做到"远程唤醒 + 串流进去"。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#services-sunshine-moonlight)

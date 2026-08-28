@@ -239,3 +239,7 @@ verify: |
 → [层 4 · 分流与 DNS](4-routing-dns.md)
 
 代理装起来只是开始。**真正决定好不好用的是分流规则和 DNS**，那一层的坑比这一层多。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#layers-3-proxy-stack)

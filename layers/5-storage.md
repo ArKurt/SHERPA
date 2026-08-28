@@ -332,3 +332,7 @@ verify: |
 
 如果 [`00-probe.md` Q3](../00-probe.md#q3-要不要从外网访问) 的答案是"不要"，
 **整层跳过**，直接去 [`services/`](../services/) 挑服务。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#layers-5-storage)

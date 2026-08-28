@@ -30,6 +30,10 @@ for p in ROOT.rglob("*.md"):
         m = re.match(r'^(#{1,6})\s+(.*)', line)
         if m:
             s.add(slug(m.group(2)))
+        # 显式锚点：<a id="x"></a> / <a name="x"></a>。GitHub 认这种写法，
+        # 用它可以让锚点在标题改写后仍然稳定——appendix/sources.md 就靠它。
+        for a in re.findall(r'<a\s[^>]*\b(?:id|name)\s*=\s*["\']([^"\']+)["\']', line):
+            s.add(a)
     anchors[p.resolve()] = s
 
 def outside_code(text):

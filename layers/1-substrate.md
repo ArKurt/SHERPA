@@ -150,3 +150,7 @@ VM 起不来。而你要修它，还得先有网。
 
 若 Q2 的答案是"只有我自己这台机器"，可以直接跳到 [层 3](3-proxy-stack.md) 选 `client-side`，
 整个层 2 不需要。
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#layers-1-substrate)

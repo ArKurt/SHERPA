@@ -159,3 +159,7 @@ env -u HTTPS_PROXY -u https_proxy -u HTTP_PROXY -u http_proxy \
 > 症状很像但修法完全不同。**搞错了会去改一个根本没问题的组件。**
 
 → [`advanced/resident-ai-harness.md`](../advanced/resident-ai-harness.md)
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#pitfalls-services)

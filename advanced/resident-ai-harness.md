@@ -62,7 +62,9 @@ optional: true
 
 ## 常驻 × 睡眠：一对硬矛盾
 
-**低功耗和"一直在"是矛盾的，没有两全的配置。**
+**低功耗和"一直在"天然是矛盾的。** 折中方案（睡眠 + 按需唤醒，见本章第一节）
+不是没有，但它牺牲的是**即时可用性**——唤醒要时间，唤醒期间的请求会失败。
+所以还是得明确：这台机器到底允不允许睡。
 
 如果服务器要跑常驻 AI：
 
@@ -88,7 +90,9 @@ optional: true
 
 **AI 服务的地区限制比大多数服务严格**，而失败方式往往是静默的。
 
-已知：**Anthropic（Claude）屏蔽香港**，OpenAI 也有类似的地区限制。
+已知：**Anthropic 的官方支持地区列表不含香港**（官方没有说"屏蔽"，
+只是不提供访问——对你的效果一样）。OpenAI 有类似的地区限制报告，
+本手册没有逐字核过它的官方原文。**用之前自己去看当天的官方页面。**
 
 如果你的代理兜底走"自动选择"组，而自动组按延迟挑节点——
 延迟最低的往往就是离你最近的地区。**某天它漂过去，服务静默失效，
@@ -124,7 +128,7 @@ optional: true
 
 **这个坑值得单独讲，因为它会让你错怪旁路由。**
 
-很多启动 AI CLI 的包装器 / 启动脚本会**给会话注入代理环境变量**
+一些启动 AI CLI 的包装器 / 启动脚本会**给会话注入代理环境变量**
 （`HTTPS_PROXY` / `https_proxy`），指向一个本机端口，并用**自签证书**做中间人。
 
 于是：在那个会话里 `curl` 某个域名 → 证书验证失败 → 看起来像"代理在 MITM"。
@@ -199,3 +203,7 @@ env -u HTTPS_PROXY -u https_proxy -u HTTP_PROXY -u http_proxy \
 - 串流进强机器干活 → [`../services/sunshine-moonlight.md`](../services/sunshine-moonlight.md)
 - 分流与地区钉死 → [层 4](../layers/4-routing-dns.md)
 - 开机自恢复 → [`../ops/boot-persistence.md`](../ops/boot-persistence.md)
+
+---
+
+> 📎 **本页断言的出处与强度**：[`appendix/sources.md`](../appendix/sources.md#advanced-resident-ai-harness)

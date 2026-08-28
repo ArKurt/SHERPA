@@ -286,7 +286,7 @@ const CONSTRAINTS = [
     hint:"服务器地址不稳定，手机 App 里填的地址过几天就失效了。路由器管理页里通常叫「静态 IP / DHCP 保留 / MAC 绑定」。",
     opts:[["yes","能"],["no","不能"],["unknown","不确定"]] },
   { id:"always_on", always:true, label:"这台机器平时是常开，还是会关机 / 睡眠？",
-    hint:"它睡着时，手机照片传不上去、定时任务不会补跑。笔记本要特别注意合盖会不会睡。还没买机器的话，按你打算买 / 征用的那台来答。",
+    hint:"它睡着时手机照片传不上去；错过的定时任务补不补，取决于当时是睡着还是关机、用的是哪类调度（对照表见 ops/boot-persistence.md）。笔记本要特别注意合盖会不会睡。还没买机器的话，按你打算买 / 征用的那台来答。",
     opts:[["always","常年开着"],["sleep","会睡眠 / 合盖就睡"],["off","用完就关"],["unknown","不确定"]] },
   { id:"hard_clients", always:true, label:"家里有电视、机顶盒或安卓设备要访问这些服务吗？",
     hint:"这决定内网怎么起名字。这类设备大多不支持 .local 自动发现，只认 DNS。",
@@ -501,7 +501,7 @@ function buildSheet(){
       "layers/1-substrate.md · ops/boot-persistence.md"]);
   else if(S.con.always_on!=="always" && chosen.length)
     flags.push(["这台机器会睡眠，上面却要跑常驻服务",
-      "它睡着时手机照片传不上去、定时任务不会补跑，而且不报错。",
+      "它睡着时手机照片传不上去；错过的定时任务补不补，取决于睡眠还是关机、用的哪类调度（ops/boot-persistence.md 有二维对照表），而且哪种情况都不报错。",
       "00-probe.md · ops/boot-persistence.md"]);
   if(S.con.domain==="no" && S.con.hard_clients==="yes")
     flags.push(["家里有电视/安卓，但你没有自己的域名",
@@ -561,15 +561,16 @@ function buildSheet(){
   step("主机系统与容器运行时就位","layers/1-substrate.md", S.os==="windows"?"⚠ 问我":"");
   step("服务器固定 IP","layers/2-gateway.md","⚠ 问我");
   step("★ 定下每个服务的数据落点","layers/5-storage.md","★ 装服务前必须完成");
-  /* 这三步原来看的是"目标里有没有旁路由"，于是向量已经判成 client-only
-     （不建旁路由）时，施工序照样让人去建——机器可读头和施工序直接顶牛。
-     改看 v.gateway：已判成不建的就不排，待定的才排。 */
-  if(v.gateway === "client-only"){
-    step("在要用代理的设备上各装一个客户端","layers/3-proxy-stack.md");
-  } else if(v.gateway !== "none"){
-    step("旁路由形态与推进顺序（先隔离网络，再桥接）","layers/2-gateway.md","⚠ 问我");
-    step("装代理栈（只装一套）","layers/3-proxy-stack.md");
-    step("分流与 DNS","layers/4-routing-dns.md");
+  /* G9+M1 同批：向导不再推导 gateway（那是要读了层 2 才能做的裁决），
+     施工序也就不能再消费 `client-only` 这个违例产物——否则推导一删、
+     待定恒真，旁路由三步会无条件排（见 reviews/wizard-fixes-zcode.md 的推演）。
+     改排"决策点"：把用户的相关原话与判据章节交给助手裁决，两条路各自
+     指到层几，不排优劣、不替手册下结论。 */
+  if(v.gateway !== "none"){
+    step("定代理形态：读层 2 判据，结合清单「一」里『有装不了客户端代理的设备要走代理吗』裁决"
+       + "——client-only 则在要用的设备上各装一个客户端（层 3）；"
+       + "否则按旁路由推进：形态（层 2）→ 代理栈（层 3）→ 分流与 DNS（层 4）",
+       "layers/2-gateway.md","⚠ 问我：走旁路由时，形态必须先和用户定");
   }
   step("内网寻址（服务怎么被访问到）","layers/7-lan-addressing.md");
   // install_when: last 的排在其它服务之后 —— 比如导航面板要先有导航对象

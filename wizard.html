@@ -256,7 +256,7 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
 <script>
 const CATALOG = {
-  "commit": "496d7a7",
+  "commit": "75e76bb",
   "goals": [
     "下载",
     "从外网访问",
@@ -781,7 +781,7 @@ const $$ = s => [...document.querySelectorAll(s)];
    "exFAT 能不能跑数据库"这类判据留在手册里，由 AI 助手读手册决定。 */
 const DEVICES = [
   ["laptop","闲置笔记本","放着不用的旧本，自带电池相当于自带 UPS"],
-  ["mini","迷你主机 / 小主机","低功耗常开，最省心的形态"],
+  ["mini","迷你主机 / 小主机","低功耗、体积小"],
   ["nas","NAS","已经是存储设备，常年开机"],
   ["desktop","台式机","性能足，但通常更费电"],
   ["sbc","树莓派一类单板","省电，但性能和扩展性有限"],
@@ -799,13 +799,13 @@ const CONSTRAINTS = [
     hint:"服务器地址不稳定，手机 App 里填的地址过几天就失效了。路由器管理页里通常叫「静态 IP / DHCP 保留 / MAC 绑定」。",
     opts:[["yes","能"],["no","不能"],["unknown","不确定"]] },
   { id:"always_on", always:true, label:"这台机器平时是常开，还是会关机 / 睡眠？",
-    hint:"它睡着时，手机照片传不上去、定时任务不会补跑。笔记本要特别注意合盖会不会睡。还没买机器的话，按你打算买 / 征用的那台来答。",
+    hint:"它睡着时手机照片传不上去；错过的定时任务补不补，取决于当时是睡着还是关机、用的是哪类调度（对照表见 ops/boot-persistence.md）。笔记本要特别注意合盖会不会睡。还没买机器的话，按你打算买 / 征用的那台来答。",
     opts:[["always","常年开着"],["sleep","会睡眠 / 合盖就睡"],["off","用完就关"],["unknown","不确定"]] },
   { id:"hard_clients", always:true, label:"家里有电视、机顶盒或安卓设备要访问这些服务吗？",
     hint:"这决定内网怎么起名字。这类设备大多不支持 .local 自动发现，只认 DNS。",
     opts:[["yes","有"],["no","只有电脑和手机"],["unknown","不确定"]] },
   { id:"domain", always:true, label:"你有自己的域名吗？",
-    hint:"有的话，内网用它的子域最省事——既不会和公网冲突，又能签真证书（内网上 HTTPS 需要它）。",
+    hint:"有的话，内网可以用它的子域。该不该用、怎么签证书，判据见 `layers/7-lan-addressing.md`。",
     opts:[["yes","有"],["no","没有"],["unknown","不知道算不算"]] },
   { id:"existing", always:true, label:"这台机器上现在已经跑着什么服务吗？",
     hint:"如果不是一台空机器，助手会先盘点已有的容器、端口和数据落点，再动网络——否则出了问题分不清是新装的坏了还是本来就坏。",
@@ -817,15 +817,15 @@ const CONSTRAINTS = [
           ["das-enclosure","外接硬盘柜（多盘位、独立供电）"],["nas","另一台 NAS（网络挂载）"]] },
   { id:"wan", when:s=>s.goals.includes("从外网访问")||s.goals.includes("远程访问自己的机器"),
     label:"路由器的 WAN 口拿到的是公网 IP 吗？",
-    hint:"在路由器状态页看 WAN 地址。以 100.64–100.127、10.、172.16–172.31、192.168 开头的都是运营商大内网，那样端口转发行不通。",
+    hint:"在路由器状态页看 WAN 地址。以 100.64–100.127、10.、172.16–172.31、192.168 开头的属于内网段，选「是大内网」。这串地址意味着什么、还能走哪条路，判据在层 6。",
     opts:[["public","是公网 IP"],["cgnat","是大内网"],["unknown","不确定"]] },
   { id:"noproxy_dev", when:s=>s.goals.includes("旁路由 / 全屋代理"),
     label:"有装不了客户端代理的设备要走代理吗？",
-    hint:"电视、游戏机、投影、IoT 这些设备本身装不了软件——这是旁路由唯一不可替代的场景。如果只有电脑和手机，各自装客户端更简单也更稳。",
+    hint:"电视、游戏机、投影、IoT 这些设备本身装不了软件。你的答案会原样进清单，层 2 用它定代理形态。",
     opts:[["yes","有（电视 / 游戏机 / IoT）"],["no","只有电脑和手机"],["unknown","不确定"]] },
   { id:"scope", when:s=>s.goals.includes("旁路由 / 全屋代理"),
     label:"想让谁走旁路由？",
-    hint:"全屋接管意味着旁路由变成单点故障——它一挂，全家断网，包括不在乎代理的人。",
+    hint:"答案决定改动面有多大。判据与风险见 `layers/2-gateway.md`。",
     opts:[["few","几台指定设备"],["all","全屋默认"],["unknown","还没想好"]] },
 ];
 
@@ -919,17 +919,17 @@ function vector(){
   const v = {};
   v.arch = "⟨待实测⟩";
   v.substrate = S.dev.includes("none") ? "[none]" : "⟨待实测：能不能跑虚拟机⟩";
+  /* G9：向导不替手册做技术裁决。gateway/addressing/ingress 只转录
+   "用户没选这个目标"这一事实（none）；选了的，裁决留给 agent 读层 2/7/6。
+   用户对这些约束问题的原话回答，全部在清单「一、用户告诉我们的」里逐字转录，
+   agent 读判据时看得到原料。漂移测试：层 2/6/7 改判据，这里不漂。 */
   const wantsGw = S.goals.includes("旁路由 / 全屋代理");
-  v.gateway = !wantsGw ? "none"
-    : S.con.noproxy_dev==="no" ? "client-only"
-    : S.con.noproxy_dev==="yes" ? "⟨待定：见层 2⟩" : "⟨待确认⟩";
+  v.gateway = !wantsGw ? "none" : "⟨待定：见层 2⟩";
   v.proxy = !wantsGw ? "none" : "⟨待定：按订阅格式选，见层 3⟩";
   v.storage = (S.con.disks?.length) ? "["+S.con.disks.join(", ")+"]" : "⟨待确认⟩";
-  v.addressing = S.con.hard_clients==="yes" ? "[ip-static, lan-dns]"
-    : S.con.hard_clients==="no" ? "[ip-static]  ⟨可加 mdns⟩" : "⟨待确认⟩";
-  v.ingress = !wantsIngress() ? "none"
-    : S.con.wan==="cgnat" ? "⟨tailscale 或 tunnel —— 大内网做不了端口转发⟩"
-    : "⟨待定：见层 6⟩";
+  v.addressing = (S.con.hard_clients==="yes"||S.con.hard_clients==="no")
+    ? "⟨待定：见层 7⟩" : "⟨待确认⟩";
+  v.ingress = !wantsIngress() ? "none" : "⟨待定：见层 6⟩";
   return v;
 }
 function buildSheet(){
@@ -1014,7 +1014,7 @@ function buildSheet(){
       "layers/1-substrate.md · ops/boot-persistence.md"]);
   else if(S.con.always_on!=="always" && chosen.length)
     flags.push(["这台机器会睡眠，上面却要跑常驻服务",
-      "它睡着时手机照片传不上去、定时任务不会补跑，而且不报错。",
+      "它睡着时手机照片传不上去；错过的定时任务补不补，取决于睡眠还是关机、用的哪类调度（ops/boot-persistence.md 有二维对照表），而且哪种情况都不报错。",
       "00-probe.md · ops/boot-persistence.md"]);
   if(S.con.domain==="no" && S.con.hard_clients==="yes")
     flags.push(["家里有电视/安卓，但你没有自己的域名",
@@ -1074,15 +1074,16 @@ function buildSheet(){
   step("主机系统与容器运行时就位","layers/1-substrate.md", S.os==="windows"?"⚠ 问我":"");
   step("服务器固定 IP","layers/2-gateway.md","⚠ 问我");
   step("★ 定下每个服务的数据落点","layers/5-storage.md","★ 装服务前必须完成");
-  /* 这三步原来看的是"目标里有没有旁路由"，于是向量已经判成 client-only
-     （不建旁路由）时，施工序照样让人去建——机器可读头和施工序直接顶牛。
-     改看 v.gateway：已判成不建的就不排，待定的才排。 */
-  if(v.gateway === "client-only"){
-    step("在要用代理的设备上各装一个客户端","layers/3-proxy-stack.md");
-  } else if(v.gateway !== "none"){
-    step("旁路由形态与推进顺序（先隔离网络，再桥接）","layers/2-gateway.md","⚠ 问我");
-    step("装代理栈（只装一套）","layers/3-proxy-stack.md");
-    step("分流与 DNS","layers/4-routing-dns.md");
+  /* G9+M1 同批：向导不再推导 gateway（那是要读了层 2 才能做的裁决），
+     施工序也就不能再消费 `client-only` 这个违例产物——否则推导一删、
+     待定恒真，旁路由三步会无条件排（见 reviews/wizard-fixes-zcode.md 的推演）。
+     改排"决策点"：把用户的相关原话与判据章节交给助手裁决，两条路各自
+     指到层几，不排优劣、不替手册下结论。 */
+  if(v.gateway !== "none"){
+    step("定代理形态：读层 2 判据，结合清单「一」里『有装不了客户端代理的设备要走代理吗』裁决"
+       + "——client-only 则在要用的设备上各装一个客户端（层 3）；"
+       + "否则按旁路由推进：形态（层 2）→ 代理栈（层 3）→ 分流与 DNS（层 4）",
+       "layers/2-gateway.md","⚠ 问我：走旁路由时，形态必须先和用户定");
   }
   step("内网寻址（服务怎么被访问到）","layers/7-lan-addressing.md");
   // install_when: last 的排在其它服务之后 —— 比如导航面板要先有导航对象

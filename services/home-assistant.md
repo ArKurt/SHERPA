@@ -49,18 +49,28 @@ HA 的很多集成靠 mDNS / SSDP / 广播来发现设备（智能灯、音箱�
 
 ### 解法
 
-| 方案 | 说明 |
-|---|---|
-| **host 网络模式** | 在 **Linux 宿主上**最简单，容器直接用宿主的网络栈。⚠️ **在 macOS 上这条不成立**——见下 |
-| **macvlan** | 给容器独立局域网 IP。宿主访问不到它，需另做处理 |
-| **原生安装** | 不套容器，天然没这问题 |
-| 手工配置每个设备的 IP | 可行但繁琐，且设备 IP 变了就断 |
+**做法按宿主分，别混：**
 
-> ⚠️ **宿主是 macOS 的话，host 网络模式解决不了这个问题。**
-> Mac 上的容器运行时自己跑在一个 Linux 虚拟机里，`--network host` 用的是
-> **那台虚拟机的**网络栈，**不在你的局域网上**，所以广播照样收不到。
-> 这时只有两条路：**原生装 HA**（不套容器），或者**把它放到一台 Linux 机器上**。
-> → [层 1 · macOS 上的"容器"不是 Linux 语义](../layers/1-substrate.md#macos)
+| 宿主 | 方案 | 说明 |
+|---|---|---|
+| **Linux** | **host 网络模式** | 最简单，容器直接用宿主的网络栈 |
+| **Linux** | macvlan | 给容器独立局域网 IP。宿主访问不到它，需另做处理 |
+| **macOS** | **HAOS 虚拟机 + 桥接网卡** | ⭐ **这是 HA 官方给 macOS 的安装路径**。虚拟机拿到独立的局域网存在感，广播收得到 |
+| 任意 | 手工配置每个设备的 IP | 可行但繁琐，且设备 IP 变了就断 |
+
+> ⚠️ **宿主是 macOS 的话，别指望 host 网络模式。**
+> Mac 上的容器运行时跑在一个 Linux 虚拟机里：Docker Desktop 从 4.34 起虽然能开
+> host networking，**但只在 L4 生效**，拿不到宿主接口，**不能据此承诺 mDNS/SSDP**；
+> HA 官方文档本身也写明 *Docker Desktop will not work; you must use Docker Engine*。
+>
+> OrbStack 的 host networking 语义与 Docker Desktop 不同（官方说法是让容器
+> *inherit the host's network namespace*），**但官方没有承诺广播一定正常**，
+> 上游也报告过随版本波动——**要用就锁定版本、从局域网客户端实测**，别当默认可行。
+>
+> 📌 **官方推荐的路是虚拟机**：HA 的 macOS 安装页给的就是
+> **Home Assistant OS 虚拟机 + 网络设为 Bridged Adapter**。
+> 这条路广播天然通，**不要因为"容器收不到广播"就以为 Mac 上无解**。
+> → [层 1 · macOS 小节](../layers/1-substrate.md#macos)
 >
 > ⚠️ **注意与旁路由的区别**：这里说的 host 网络是给 HA 用的，
 > 和 [层 2 明确否决的"代理跑 host 网络"](../layers/2-gateway.md#container-macvlan--只在跑不了-vm-时)

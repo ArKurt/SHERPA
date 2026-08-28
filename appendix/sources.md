@@ -536,7 +536,10 @@
 
 - **强度**：`[官方]`
 - **出处/依据**：<https://tailscale.com/docs/features/subnet-routers>（2026-08-28 抓取）
-- **原文/取证说明**：“You can skip this step if you use `autoApprovers`.”
+- **原文/取证说明**（⚠️ **主规则和例外必须一起摘**——这条曾经只摘了例外）：
+  主规则：广告出来的子网路由要在管理后台**批准之后**才在 tailnet 中生效。
+  例外一：符合 `autoApprovers` 的设备会**自动批准**。
+  例外二：“You can skip this step if you use `autoApprovers`.”
 - **手册怎么说**：声明子网路由后还要**在管理后台批准这条路由**——默认**不会**自动批准。
 - **是否需改写**：**是** —— 建议把泛化的 KB 首页换成上述 subnet routers 具体页，并写清：未配置 `autoApprovers` 时，需要在管理后台批准广告路由。
 - **来源报告**：`S3`
@@ -570,9 +573,12 @@
 
 ### L111 · `home.arpa` 由 RFC 8375 为家庭网络保留，但签不了公开信任的证书
 
-- **强度**：`[官方]`
+- **强度**：`[官方]`（保留与 DNSSEC 两半）+ `[推理]`（**公开证书那半**）
 - **出处/依据**：<https://www.rfc-editor.org/rfc/rfc8375.html> Abstract / §1 / §6.1
 - **原文/取证说明**：“'home.arpa.' is designated for non-unique use in residential home networks.”；“cannot be secured using DNSSEC based on the root domain's trust anchor”
+  ⚠️ **RFC 8375 全文不讨论证书。** “签不了公开信任的证书”这半**不能从上面两句推出**——
+  它的依据是公开 CA 不为不可注册的名称签发证书（属于 CA/浏览器论坛与各 CA 的规则），
+  本条**没有引到那一侧的一手来源**。别把它一起标成 `[官方]`。
 - **手册怎么说**：| `home.arpa` | ✅ RFC 8375 专为家庭网络保留，安全但**签不了公开信任的证书** |
 - **是否需改写**：**是** —— 建议：「`.home.arpa` 不能取得公开信任证书，也不能用公共 DNS 根信任链验证 DNSSEC；后者是 RFC 8375 明列的边界。」
 - **来源报告**：`S3`
@@ -801,11 +807,15 @@
 
 ### L42-43 · Syncthing 同步的是'状态'，不是'追加'。 一端删了文件， 另一端也会删
 
-- **强度**：[推理]
-- **出处/依据**：由其同步模型推出；官方文档有 "Syncthing is not a backup" 类表述， 但本轮抓取的 FAQ/config 页未命中该句原文，未强行引用
-- **原文/取证说明**：逐字引文已列在“出处/依据”中。
+- **强度**：`[官方]`（2026-08-29 复核后**从 `[推理]` 升级**）
+- **出处/依据**：<https://docs.syncthing.net/users/syncthing.html> ；<https://docs.syncthing.net/users/faq.html>
+- **原文/取证说明**：官方文档逐字写明文件的 creation / modification / **deletion**
+  都会复制到其它设备；FAQ 同样说明删除会传播，并把 **versioning** 列为例外
+  （开了版本控制的话，被删的文件会进版本库而不是直接消失）。
+  ⚠️ 上一轮标为"未命中原文"是**抓取没到位**，不是上游没写。
 - **手册怎么说**："**Syncthing 同步的是'状态'，不是'追加'。** 一端删了文件， 另一端也会删"
-- **是否需改写**：否 —— 结论稳，标注承认未核到原文即可。
+- **是否需改写**：**是（补例外）** —— 结论成立且现在有一手依据；建议正文补一句
+  **versioning 是这条的例外**，否则读者以为删了就没救了。
 - **来源报告**：`S2`
 
 ## services/navidrome.md

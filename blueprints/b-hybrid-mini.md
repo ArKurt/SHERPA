@@ -17,11 +17,14 @@ substrate: [bare-metal, vm]      # 不互斥，这正是「混合」的含义
 gateway:   vm-openwrt            # 单臂旁路由，独立 IP
 proxy:     nikki                 # mihomo 内核
 storage:   [internal, das-enclosure]
-ingress:   tunnel + port-forward # 隧道为主，一条直连口给大流量媒体
+ingress:   tunnel                # 单值；主入口。大流量媒体另开过 port-forward，见向量下方
 services:  [jellyfin, navidrome, aria2, sunshine-moonlight,     # 原生跑
             immich, home-assistant, vaultwarden, sunpanel]     # 容器跑
            # 实机上另有聚合搜索、漫画库等，本手册未收录
 ```
+
+`ingress` 是单值字段，向量只记主入口 `tunnel`。实机上还给大流量媒体开过一条
+`port-forward`——那是叠加的第二条路，不是这个字段的第二个值。
 
 ## 什么条件下选它
 
@@ -98,8 +101,24 @@ services:  [jellyfin, navidrome, aria2, sunshine-moonlight,     # 原生跑
 - **组网工具的域名被 fake-ip 吃掉** —— 必须在切网关前解决。
   见 [层 4 坑 ②](../layers/4-routing-dns.md)
 
+## 没有旁路由的话，这些代价哪些仍然适用
+
+锚点 B 的向量含旁路由。**不需要代理的人不要为了对上它而引入一套**——
+选型规则 0 仍然优先。
+
+但如果硬件形态接近（Apple Silicon 上原生跑服务、Immich / Jellyfin、常驻 AI），
+代价里有一半跟旁路由无关。对不上这条锚点，也值得把那两笔读完：
+
+| 代价 | 没有旁路由时 |
+|---|---|
+| 一、两套要维护 | 不适用 |
+| 二、宿主睡眠 | **适用。** 不会让全屋断网，但本机上的服务、组网入口、常驻 AI 一样会停。→ [`ops/boot-persistence.md`](../ops/boot-persistence.md#睡眠) |
+| 三、FileVault | **适用。** 解锁前什么都没在跑，包括 Tailscale 和容器。→ [`ops/boot-persistence.md`](../ops/boot-persistence.md#全盘加密会限制自恢复能力) |
+| 四、裸核 / fake-ip | 不适用 |
+
 ## 相关层
 
 [层 1](../layers/1-substrate.md) · [层 2](../layers/2-gateway.md#推进顺序关键) ·
 [层 3](../layers/3-proxy-stack.md) · [层 4](../layers/4-routing-dns.md) ·
-[层 5](../layers/5-storage.md) · [层 6](../layers/6-ingress.md)
+[层 5](../layers/5-storage.md) · [层 6](../layers/6-ingress.md) ·
+[层 7](../layers/7-lan-addressing.md)

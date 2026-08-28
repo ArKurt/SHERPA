@@ -88,14 +88,18 @@ x86 机器上这不是问题。但如果日后要迁移到 ARM 机器（Apple Si
 [层 1](../layers/1-substrate.md) ·
 [层 2](../layers/2-gateway.md) ·
 [层 3](../layers/3-proxy-stack.md#选型的第一判据是订阅格式不是功能) ·
+[层 4](../layers/4-routing-dns.md) ·
 [层 5](../layers/5-storage.md) ·
-[层 6](../layers/6-ingress.md#tunnel--出站隧道)
+[层 6](../layers/6-ingress.md#tunnel--出站隧道) ·
+[层 7](../layers/7-lan-addressing.md)
 
 ## 如果你正走在这条路上
 
 不用推翻重来。按影响从大到小做两件事就能拿到大部分收益：
 
-1. **把数据库挪到内置盘**，只留媒体在外接盘。代价很小（状态数据通常不到 1 GB），
+1. **把数据库挪到内置盘**，只留媒体在外接盘。代价通常很小——
+   这套部署上的状态数据合起来不到 1 GB，**但别把这个数字当通用值**
+   （Immich 的 Postgres 单独就可能 1–3 GB，见[层 5](../layers/5-storage.md)）。
    收益极大——外接盘掉线从"数据损坏"降级成"暂时找不到文件"
 2. **如果这台机器还扛得住**，考虑把服务栈搬出 VM 跑在宿主上，
    只留旁路由在 VM 里 → 就变成了 [锚点 B](b-hybrid-mini.md)

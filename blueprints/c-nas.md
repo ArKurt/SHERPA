@@ -96,7 +96,9 @@ C 被否决的理由：host 网络让代理直接接管 NAS 自己的网络栈�
 ## 相关层
 
 [层 1](../layers/1-substrate.md#nas厂商系统) · [层 2](../layers/2-gateway.md) ·
-[层 3](../layers/3-proxy-stack.md) · [层 4](../layers/4-routing-dns.md)
+[层 3](../layers/3-proxy-stack.md) · [层 4](../layers/4-routing-dns.md) ·
+[层 5](../layers/5-storage.md) · [层 6](../layers/6-ingress.md) ·
+[层 7](../layers/7-lan-addressing.md)
 
 ## 原始素材
 

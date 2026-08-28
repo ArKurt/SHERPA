@@ -2,7 +2,6 @@
 
 > 给受用户委托、读本仓库并在其机器上实施的 agent。
 > 人类读者请从 [README.md](README.md) 进。
-> *English version below.*
 
 ---
 
@@ -67,6 +66,9 @@ needs_decision:    # 【要读手册判据才能定的】—— 读对应的层
    - **对得上** → 走那条已验证路径，只读它引用的层
    - **对不上** → 进 [`layers/`](layers/) 逐层求解
 4. 只读命中的层与模块。不要预读整个 `layers/`。
+
+出问题了走另一条路：直接进 [`pitfalls/README.md`](pitfalls/README.md)，**按症状查**，
+不要按主题查。这些坑的共同点是——症状不指向真凶。
 
 [`archive/`](archive/) 是历史素材（一道旧题的多模型横向对比），**不是现行方案，不要照着执行**。
 
@@ -171,77 +173,7 @@ VM 起在隔离网络（NAT）里验证内核与插件
 替换成用户现场的真实值——替换前先确认你知道正确的值，不要用示例值试。
 
 ---
----
 
-# AGENTS.md — Operating Contract (English)
-
-> For agents acting on a user's behalf, reading this repo and implementing on their machines.
-> Human readers: start at [README.md](README.md).
-
-## Two hard rules
-
-```
-1. Side-gateway only, never main router.
-   Don't touch PPPoE, addressing, port-forward planning, or the main router's config.
-
-2. DHCP belongs to the main router alone.
-   The side gateway hands out no addresses. At most it is named as a client's gateway/DNS.
-```
-
-Touching the main router is the one class of change here that takes the whole household
-offline instantly — and may leave you without a network to fix it from. When things break,
-the tempting move is to change the main router. Don't. Stop and ask the user.
-
-When something must be done on the main router (e.g. a static lease for the side gateway),
-**tell the user how — don't do it yourself.**
-
-## How to read this repo
-
-Index first, never scan everything. Fixed order:
-
-1. [README.md](README.md) table of contents
-2. [`00-probe.md`](00-probe.md) — probe the environment, produce a **config vector**
-3. [`blueprints/`](blueprints/) — match the vector against three verified anchors.
-   Match → follow that verified path. No match → solve layer by layer in [`layers/`](layers/).
-4. Read only the layers you hit.
-
-When something breaks, take the other path: go straight to
-[`pitfalls/README.md`](pitfalls/README.md) and look it up **by symptom**, not by topic.
-These pitfalls share one trait — the symptom does not point at the cause.
-
-[`archive/`](archive/) is historical research material, **not a current plan. Do not execute it.**
-
-## Selection rules
-
-- `requires` gates admission — all conditions must hold.
-- `conflicts` is a hard constraint, not advice. **Never install two transparent proxies.**
-  Both will inject firewall hijack rules and fight; the symptom is "everything looks up but
-  no client can get through", and it is very hard to diagnose.
-- If it isn't in this handbook, don't improvise it onto a user's machine.
-- **Don't introduce what the user didn't ask for** — especially a proxy. "I want a home
-  server" and "I want a proxy" are separate needs. If they never mentioned one, set
-  `gateway: none` / `proxy: none`, skip layers 2–4, and say so.
-
-## Execution rules
-
-**Stop and ask** when: `needs_human: true`, `risk: high`, anything on the main router,
-pointing a household's default gateway at a new device, spending money or changing cabling,
-or when reality doesn't match the docs. That last one especially — **report, don't guess.**
-
-**Acceptance**: only the module's `verify` field counts, and it must run **from a client**.
-Not "the service started", not "the port is listening", not "the router's own test reached
-the internet".
-
-> **"The core can reach the internet" ≠ "clients can get through it."**
-
-**Rollback**: confirm it works before you start, and make sure the rollback path doesn't
-depend on the link you're about to change. Management access to the side gateway must be
-direct LAN, not through the proxy.
-
-**Order**: reversible and narrow first. Bring a VM up on an isolated network, verify, then
-bridge it, then point one test client at it. Never flip the whole household in one step.
-
-## Redaction
-
-All addresses, domains and MACs in examples are placeholders (see
-[`appendix/redaction.md`](appendix/redaction.md)). **Copying them verbatim will not work.**
+This handbook is written in Chinese. The operating contract is the Chinese text above —
+there is no English edition. Have your agent read this file (and the rest of the repo)
+in Chinese. A parallel English summary would drift, which is why we don't keep one.

@@ -97,7 +97,10 @@ A 和 B 是"这么干过，代价是这些"。C 是"应该这么干，但你是�
 不需要就走：**层 1（底座）→ 层 5（存储）→ 层 7（内网寻址）→ 挑服务 → 运维**。
 
 ⚠️ 三条参考架构全部包含旁路由，所以这种情况下**一条都不会对上**——
-这是正常的，直接逐层求解就好。
+这是正常的，直接逐层求解就好。硬件形态接近 [锚点 B](blueprints/b-hybrid-mini.md)
+（Apple Silicon、服务原生跑）但不做旁路由时，**仍然去读 B 的
+[「没有旁路由的话，这些代价哪些仍然适用」](blueprints/b-hybrid-mini.md#没有旁路由的话这些代价哪些仍然适用)**——睡眠和全盘加密跟旁路由无关。
+不要为了对上 B 而引入代理。
 
 ## 怎么验证这本手册
 
@@ -130,55 +133,7 @@ A 和 B 是"这么干过，代价是这些"。C 是"应该这么干，但你是�
 标了 ⚠️ **未落地验证**的部分，请当作推理而不是经验。
 
 ---
----
 
-# anyserver (English)
-
-**Turn whatever hardware you have into a home or studio server you can actually live with.**
-
-Not a follow-along tutorial — a handbook that **solves for your hardware**. It doesn't assume
-what you own; it asks first, then gives you a matching path and its costs.
-
-## Two hard rules
-
-```
-1. Side-gateway only, never main router.
-2. DHCP belongs to the main router alone.
-```
-
-Touching the main router is the one class of change that takes a household offline instantly,
-possibly leaving you without a network to fix it from. This handbook stays out.
-
-## What you get
-
-- A complete path matched to your hardware, not someone else's config
-- Machine-checkable acceptance criteria for every step — run from a *client*, not the box itself
-- A rollback for every step, that doesn't depend on the link you just broke
-- A catalogue of ~25 real pitfalls, each indexed by **what the symptom looks like**
-- An optional service menu: photos, media, music, downloads, passwords, home automation
-
-## Getting started
-
-**Human**: start at [`00-probe.md`](00-probe.md). It asks a few questions and points you at
-the two or three chapters you actually need. Don't read it front to back.
-
-**Using an AI to set things up**: hand it this repo and have it read [`AGENTS.md`](AGENTS.md)
-first — that's the operating contract, including **what it must stop and ask you about**.
-
-## Layout
-
-`00-probe.md` → `layers/` (six-layer trunk) → `blueprints/` (three reference architectures)
-→ `services/` (all optional) → `ops/` → `pitfalls/` (indexed by symptom)
-
-`archive/` holds historical research material — **not a current plan.**
-
-## About the addresses in examples
-
-Every IP, domain and MAC is a **placeholder** (RFC 5737 documentation ranges).
-**Copying them will not work** — deliberately. A wrong copy should fail loudly rather than
-happen to hit a real machine on your network.
-
-## Status
-
-Drawn from real deployments on three hardware substrates. Anything marked
-⚠️ **未落地验证 / not verified in production** is reasoning, not experience.
+This handbook is written in Chinese. There is no English edition.
+Point your agent at [`AGENTS.md`](AGENTS.md) and the rest of the repo in Chinese.
+We don't keep a parallel English summary because it would drift.

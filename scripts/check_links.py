@@ -32,10 +32,21 @@ for p in ROOT.rglob("*.md"):
             s.add(slug(m.group(2)))
     anchors[p.resolve()] = s
 
+def outside_code(text):
+    """去掉围栏代码块——里面的链接是示例，不该当成真链接检查。"""
+    out, fence = [], False
+    for ln in text.split("\n"):
+        if ln.lstrip().startswith("```"):
+            fence = not fence
+            continue
+        if not fence:
+            out.append(ln)
+    return "\n".join(out)
+
 for p in sorted(ROOT.rglob("*.md")):
     if ".git" in p.parts:
         continue
-    for target in LINK.findall(p.read_text(encoding="utf-8")):
+    for target in LINK.findall(outside_code(p.read_text(encoding="utf-8"))):
         if target.startswith(("http://", "https://", "mailto:")):
             continue
         path_part, _, frag = target.partition("#")

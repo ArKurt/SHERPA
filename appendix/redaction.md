@@ -51,6 +51,29 @@ scripts/check.sh redaction
 
 正确写法与自查方法见 [`../ops/secrets.md`](../ops/secrets.md#情形二传给一条你手敲或-agent-敲的命令)。
 
+## 分支约定
+
+- **`develop`** —— 所有工作在这里，含 `reviews/` 等过程文件。任何机器 `git pull` 就能接力。
+- **`main`** —— **从 develop 导出，不是合并进去的**，只放产品文件。
+
+⚠️ **铁律：main 只写不读，永远不往 develop 合并回去。**
+两个分支差一个目录，只要有一次是"手工同步"，它们就会开始漂——
+这本手册已经因为同一个原因砍掉过双语 README。**main 不是一个要维护的分支，它是一份导出。**
+
+刷新 main 的做法：
+
+```sh
+git checkout main
+git checkout develop -- 00-probe.md AGENTS.md CLAUDE.md README.md LICENSE \
+    layers services ops pitfalls advanced appendix blueprints archive \
+    scripts data wizard.html wizard.template.html .gitignore
+git commit -m "Sync product tree from develop"
+```
+
+📌 **仓库转公开时所有分支都是公开的**，develop 连同 `reviews/` 一样看得到。
+所以 main 干净的意义是**默认视图干净**，不是把东西藏起来——
+**脱敏要求对两个分支同样适用。**
+
 ## 发布前清理清单
 
 仓库转公开之前，逐项确认：

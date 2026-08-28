@@ -203,8 +203,9 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
   <section class="step" data-step="1">
     <h2>Step 02 — 挑服务</h2>
-    <p class="sub">按上一步的目标筛过了。每个都写了「它是什么、解决什么问题」——
-      挑你真的想用的，<b>不必全选</b>，每个服务都是以后要维护的东西。</p>
+    <!-- 副标题按"这一步到底筛没筛"生成：零服务目标（旁路由 / 从外网访问 / 常驻 AI）
+         下目录会回退到全部服务，写死"筛过了"就是假话 -->
+    <p class="sub" id="svc-sub"></p>
     <div id="svc-list"></div>
     <div class="callout" id="cap-note" style="display:none"></div>
   </section>
@@ -285,7 +286,7 @@ const CONSTRAINTS = [
     hint:"服务器地址不稳定，手机 App 里填的地址过几天就失效了。路由器管理页里通常叫「静态 IP / DHCP 保留 / MAC 绑定」。",
     opts:[["yes","能"],["no","不能"],["unknown","不确定"]] },
   { id:"always_on", always:true, label:"这台机器平时是常开，还是会关机 / 睡眠？",
-    hint:"它睡着时，手机照片传不上去、定时任务不会补跑。笔记本要特别注意合盖会不会睡。",
+    hint:"它睡着时，手机照片传不上去、定时任务不会补跑。笔记本要特别注意合盖会不会睡。还没买机器的话，按你打算买 / 征用的那台来答。",
     opts:[["always","常年开着"],["sleep","会睡眠 / 合盖就睡"],["off","用完就关"],["unknown","不确定"]] },
   { id:"hard_clients", always:true, label:"家里有电视、机顶盒或安卓设备要访问这些服务吗？",
     hint:"这决定内网怎么起名字。这类设备大多不支持 .local 自动发现，只认 DNS。",
@@ -301,7 +302,7 @@ const CONSTRAINTS = [
     hint:"可多选。数据库和照片原图对盘的要求完全不同，助手会照手册的判据分开安置。",
     opts:[["internal","机器内置盘"],["usb-portable","外接移动硬盘"],
           ["das-enclosure","外接硬盘柜（多盘位、独立供电）"],["nas","另一台 NAS（网络挂载）"]] },
-  { id:"wan", when:s=>s.goals.includes("从外网访问"),
+  { id:"wan", when:s=>s.goals.includes("从外网访问")||s.goals.includes("远程访问自己的机器"),
     label:"路由器的 WAN 口拿到的是公网 IP 吗？",
     hint:"在路由器状态页看 WAN 地址。以 100.64–100.127、10.、172.16–172.31、192.168 开头的都是运营商大内网，那样端口转发行不通。",
     opts:[["public","是公网 IP"],["cgnat","是大内网"],["unknown","不确定"]] },
@@ -348,6 +349,15 @@ function pickedServices(){
 }
 function renderStep2(){
   const list = pickedServices(), byCat = {};
+  const matched = S.goals.length
+    ? CATALOG.services.filter(s=>s.goals.some(g=>S.goals.includes(g))).length : -1;
+  const head = matched < 0
+    ? `还没有选目标——下面是全部服务，先看看有什么。目标也可以回到上一步再选。`
+    : matched > 0
+    ? `按上一步选的目标筛过了，只留相关的。`
+    : `你选的目标对应的不是服务，是手册里的章节（见下方提示）。下面是完整目录，供参考——可以一个都不选。`;
+  $("#svc-sub").innerHTML = `${head}每个都写了「它是什么、解决什么问题」——
+      挑你真的想用的，<b>不必全选</b>，每个服务都是以后要维护的东西。`;
   list.forEach(s=>(byCat[s.category] ||= []).push(s));
   const order = ["media","photos","files","download","home","privacy","remote","web","tools","infra"];
   $("#svc-list").innerHTML = order.filter(c=>byCat[c]).map(c=>`
@@ -388,6 +398,10 @@ function renderStep3(){
 }
 
 /* ═══ 生成装机清单 ═══ */
+/* "远程访问自己的机器"（串流一类）和"从外网访问"在用户脑中常是同一件事
+   （"在外面用家里的东西"），WAN 事实与外网入口步骤对两者都需要。
+   这里只扩展触发条件；CGNAT 分支里的结论性措辞属 G9，另行处理。 */
+const wantsIngress = () => S.goals.includes("从外网访问") || S.goals.includes("远程访问自己的机器");
 function vector(){
   const v = {};
   v.arch = "⟨待实测⟩";
@@ -400,7 +414,7 @@ function vector(){
   v.storage = (S.con.disks?.length) ? "["+S.con.disks.join(", ")+"]" : "⟨待确认⟩";
   v.addressing = S.con.hard_clients==="yes" ? "[ip-static, lan-dns]"
     : S.con.hard_clients==="no" ? "[ip-static]  ⟨可加 mdns⟩" : "⟨待确认⟩";
-  v.ingress = !S.goals.includes("从外网访问") ? "none"
+  v.ingress = !wantsIngress() ? "none"
     : S.con.wan==="cgnat" ? "⟨tailscale 或 tunnel —— 大内网做不了端口转发⟩"
     : "⟨待定：见层 6⟩";
   return v;
@@ -410,6 +424,9 @@ function buildSheet(){
   const chosen = CATALOG.services.filter(s=>S.svcs.includes(s.id));
   const v = vector();
   const L=[];
+  // 章节号自增——按"上游文档"等可选段有没有来手推编号，漏推过一次（六→八跳号）
+  let secno = 0;
+  const sect = t => `## ${"一二三四五六七八九十"[secno++]||secno}、${t}`;
   // 机器可读头：agent 不用解析散文就能拿到向量与计数
   // 两类不同的"未定"：机器能查的 vs 要读手册/问人才能定的。
   // 这个区分和 00-probe.md 的分法一致，别混。
@@ -432,7 +449,7 @@ function buildSheet(){
   L.push(``,`生成于 ${now} · 基于手册 ${CATALOG.commit}`);
   L.push(``,`> 这份清单是【向导问卷的产物】，记录的是用户的回答，**不含任何技术判据**。`);
   L.push(`> 判据全部在手册里。请先读仓库根目录的 \`AGENTS.md\`，再照本清单开工。`);
-  L.push(``,`---`,``,`## 一、用户告诉我们的`);
+  L.push(``,`---`,``,sect("用户告诉我们的"));
   L.push(``,`- **设备**：${S.dev.map(d=>DEVICES.find(x=>x[0]===d)[1]).join(" · ")||"未填"}`);
   if(S.os) L.push(`- **当前系统**：${OSES.find(x=>x[0]===S.os)[1]}`);
   L.push(`- **目标**：${S.goals.join(" · ")||"未填"}`);
@@ -443,13 +460,13 @@ function buildSheet(){
     L.push(`- **${c.label.replace(/[？?]$/,"")}**：${txt||"未答"}`);
   });
 
-  L.push(``,`## 二、配置向量（部分待实测）`,``,"```yaml");
+  L.push(``,sect("配置向量（部分待实测）"),``,"```yaml");
   Object.entries(v).forEach(([k,val])=>L.push(`${(k+":").padEnd(12)}${val}`));
   L.push(`services:   [${chosen.map(s=>s.id).join(", ")||""}]`);
   L.push("```");
   L.push(``,`⟨尖括号⟩ 里的是**问卷问不出来的**，需要你实地探测或与用户确认。**不要猜。**`);
 
-  L.push(``,`## 三、动手前先实测这些`,``);
+  L.push(``,sect("动手前先实测这些"),``);
   // 知道系统就只给那一套命令；不知道就两套都给，别让 Mac 用户照着 lsblk 敲
   const perOS = (linux, mac) =>
     S.os==="macos" ? mac
@@ -469,7 +486,7 @@ function buildSheet(){
          + perOS("\`ip -6 route show default\`", "\`route -n get -inet6 default\`")
          + `；\`curl -4\` 与 \`curl -6\` 对比出口）`
          + ` —— 只管 IPv4 就说"全屋"是超出实测范围 → \`layers/3-proxy-stack.md\``);
-  if(S.goals.includes("从外网访问") && S.con.wan!=="public")
+  if(wantsIngress() && S.con.wan!=="public")
     L.push(`- [ ] 路由器 WAN 口地址是不是运营商大内网 → 决定层 6 的可选范围`);
   if(S.con.router_static!=="yes")
     L.push(`- [ ] 主路由能不能绑定固定 IP —— 不能的话要在机器上配静态并避开 DHCP 池`);
@@ -512,7 +529,7 @@ function buildSheet(){
       "本手册的主路径要求类 Unix 系统。重装会擦掉盘上现有数据。",
       "layers/1-substrate.md"]);
   if(flags.length){
-    L.push(``,`## 四、你的回答之间有这些已知冲突`,``);
+    L.push(``,sect("你的回答之间有这些已知冲突"),``);
     L.push(`> 这些不是错误，是**手册里记录过的矛盾**。清单不替你裁决——`);
     L.push(`> 请读对应小节，然后和用户一起决定怎么办。`,``);
     flags.forEach(([t,why,doc])=>{
@@ -528,11 +545,17 @@ function buildSheet(){
   if(S.con.scope==="all") humans.push("**把全屋默认网关指向旁路由** —— 改错了全家断网，必须分步走");
   if(S.con.disks?.includes("usb-portable")) humans.push("**移动硬盘要不要重新格式化** —— 会擦盘");
   chosen.filter(s=>s.needs_human).forEach(s=>humans.push(`**${s.name}** —— 见 \`${s.doc}\``));
-  L.push(``,`## ${flags.length?"五":"四"}、必须停下来问用户的`,``);
+  L.push(``,sect("必须停下来问用户的"),``);
   humans.forEach(h=>L.push(`- ⚠ ${h}`));
 
-  L.push(``,`## ${flags.length?"六":"五"}、施工序`,``,`> 顺序不是随意的。带 ★ 的有硬性时间约束，做晚了就没机会了。`,``);
+  L.push(``,sect("施工序"),``,`> 顺序不是随意的。带 ★ 的有硬性时间约束，做晚了就没机会了。`,``);
   let n=0; const step=(t,doc,flag)=>L.push(`${++n}. [ ] ${t}${flag?"  "+flag:""}${doc?`  → \`${doc}\``:""}`);
+  /* 设备答了"什么都没有"（或没答设备）时，下面每一步都在说一台还不存在的机器。
+     设备选项的 note 承诺过"清单会告诉你最低需要什么"——兑现方式是这一步：
+     只指路到层 1 的选型判据，不在向导里复述判据本身。 */
+  const noMachine = !S.dev.some(d=>d!=="none");
+  if(noMachine)
+    step("先定下用哪台机器——选型判据见层 1（本清单其余步骤都假设它已到位）","layers/1-substrate.md");
   if(S.con.existing!=="none")
     step("★ 盘点已有服务并记录变更前基线","00-probe.md","★ 动网络之前必须完成");
   step("主机系统与容器运行时就位","layers/1-substrate.md", S.os==="windows"?"⚠ 问我":"");
@@ -559,12 +582,12 @@ function buildSheet(){
   step("真断电，走冷启动验收","ops/cold-start-acceptance.md",
        (S.con.scope==="all"||S.con.existing==="some")?"⚠ 问我：需要停机窗口":"");
   step("★ 备份配好并验证过能恢复","ops/backup.md","★ 灌真实数据前必须完成");
-  if(S.goals.includes("从外网访问")) step("公网入口","layers/6-ingress.md","⚠ 问我");
+  if(wantsIngress()) step("公网入口","layers/6-ingress.md","⚠ 问我");
   if(S.goals.includes("常驻 AI agent")) step("常驻 AI harness","advanced/resident-ai-harness.md");
   step("这时候才灌真实数据");
 
   if(chosen.some(s=>s.docs.length)){
-    L.push(``,`## ${flags.length?"七":"六"}、上游文档（省掉一轮检索）`,``);
+    L.push(``,sect("上游文档（省掉一轮检索）"),``);
     chosen.filter(s=>s.docs.length).forEach(s=>{
       L.push(`**${s.name}**`);
       s.docs.forEach(d=>L.push(`- [${d.type==="official"?"官方":"社区"}] ${d.title} — ${d.url}${d.seen?`（抓取于 ${d.seen}）`:""}`));
@@ -573,13 +596,14 @@ function buildSheet(){
     L.push(`⚠️ 这些链接**未经本次核实**。社区内容尤其要看更新日期——手册里有过一次教训：`);
     L.push(`一份停更一年多的社区规则集漏掉了关键域名，症状是"用着用着掉登录"。`);
   }
-  L.push(``,`## ${flags.length?"八":"七"}、出问题了`,``);
+  L.push(``,sect("出问题了"),``);
   L.push(`**先查 \`pitfalls/README.md\`** —— 那是按【症状】索引的，不是按主题。`);
   L.push(`按症状定位到具体的坑，那里有完整的症状 / 原因 / 修法。`);
   L.push(``,`那里没有，再放大范围检索。但**先取证再动手**——`);
   L.push(`手册里至少有三个坑的第一版诊断是错的，包括作者自己排查时。`);
+  // 两类"未定"分开计数，末页卡片和 frontmatter 的两张清单对得上
   META = { humans: humans.length, flags: flags.length,
-           probe: probe.length + undecid.length,
+           probe: probe.length, undecid: undecid.length,
            svcs: chosen.length, vector: v };
   return L.join("\n");
 }
@@ -631,12 +655,17 @@ function renderSummary(){
   const v = META.vector || {};
   const cell = (k,val,hot) =>
     `<div class="card${hot?" hot":""}"><div class="k">${k}</div><div class="v">${val}</div></div>`;
-  const brief = x => String(x).includes("⟨") ? "<small>待实测</small>" : x;
+  const brief = x => {
+    const s = String(x);
+    if(!s.includes("⟨")) return s;
+    return /待实测/.test(s) ? "<small>待实测</small>" : "<small>待定 · 读手册</small>";
+  };
   $("#summary").innerHTML =
     cell("服务", META.svcs ? `${META.svcs} 个` : "未选")
   + cell("旁路由", brief(v.gateway))
   + cell("公网入口", brief(v.ingress))
-  + cell("待实测", `${META.probe} 项`, META.probe>0)
+  + cell("待实测", `${META.probe} <small>项 · 机器能查</small>`, META.probe>0)
+  + cell("待定", `${META.undecid} <small>项 · 读手册</small>`, META.undecid>0)
   + cell("要问你", `${META.humans} 处`, META.humans>0)
   + (META.flags ? cell("答案冲突", `${META.flags} 处`, true) : "");
 }

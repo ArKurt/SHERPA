@@ -15,10 +15,29 @@ aria2.github.io
 github.com
 www.navidrome.org
 docs.syncthing.net
-docs.syncthing.net
 docs.lizardbyte.dev
 moonlight-stream.org
 tailscale.com
+
+# 出处附录引用的上游一手来源（appendix/sources.md）
+# immich.app 的现址，旧链接 307 跳这里
+docs.immich.app
+docs.docker.com
+www.postgresql.org
+www.sqlite.org
+www.qemu.org
+# mihomo
+wiki.metacubex.one
+letsencrypt.org
+developer.apple.com
+support.apple.com
+learn.microsoft.com
+docs.kernel.org
+developer.mozilla.org
+www.icann.org
+code.claude.com
+www.anthropic.com
+help.openai.com
 
 # 文档里用作占位的保留域名（RFC 2606）
 example.com

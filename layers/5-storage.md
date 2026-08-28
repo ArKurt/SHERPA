@@ -75,7 +75,7 @@ Immich 现行文档说它的 Postgres 文件通常就有 1–3 GB。
 | APFS / HFS+（macOS 原生） | ✅ | ✅ | ✅ |
 | NTFS | ✅ | ⚠️ 跨平台驱动差异大 | ⚠️ 不建议 |
 | **exFAT** | ✅ | ⚠️ **只能全卷统一属主**，见下 | ❌ **不行** |
-| 网络挂载（SMB/NFS） | ✅ | ⚠️ 看挂载参数与服务要求 | ❌ **多数服务官方禁止** |
+| 网络挂载（SMB/NFS） | ✅ | ⚠️ 看挂载参数与服务要求 | ⚠️ **本手册默认不放**，可推翻，见下 |
 
 ### exFAT 的限制到底在哪
 
@@ -102,13 +102,27 @@ Linux exFAT 驱动支持 `uid=` / `gid=` / `umask=` / `dmask=` / `fmask=` 挂载
 exFAT 的存在理由是**跨平台通用**。如果这块盘要在多台机器间搬，它有价值——
 代价就是上面这张表。
 
-**写入验收怎么做**（★ 从容器里跑，不是从宿主）：
+**写入验收怎么做**（★ 关键是**用服务真实的身份**跑，不是用 root）：
 
 ```sh
-docker compose exec <服务> sh -c 'touch /挂载点/.wtest && rm /挂载点/.wtest' && echo OK
+# ① 先查这个服务的主进程实际以谁的身份在跑
+#    ⚠️ 不要用 `exec ... id` 来查——exec 默认就是 root，你查到的是 root
+docker compose top <服务>
+#    看 UID 那一列。镜像没声明 USER、而是在 entrypoint 里降权的情况很常见
+
+# ② 用那个身份验收
+docker compose exec --user <uid>:<gid> <服务> sh -c 'touch /挂载点/.wtest && rm /挂载点/.wtest' && echo OK
 # 期望: OK
-# 宿主能写不代表容器里能写——容器以非 root 身份运行，而 exFAT 的属主由挂载参数一次定死。
 ```
+
+⚠️ **为什么必须带 `--user`**：`docker compose exec` 默认以 root 执行。
+实测过一种情况——容器以 root 启动、在 entrypoint 里降权到 UID 1000 跑主进程，
+**这时不带 `--user` 的检查会输出 `OK`，而真正的服务进程根本写不进去**。
+那是一条无论如何都会通过的检查，比没有检查更危险。
+
+📌 镜像里没有 `sh` 的（distroless 一类）用不了这条，得按那个服务自己的方式验。
+
+宿主能写不代表容器里能写——exFAT 的属主由挂载参数一次定死。
 
 > **手上是一块 exFAT 盘、又要跑相册怎么办？按这个顺序，别跳步：**
 > ① 先查该服务官方有没有点名不支持 exFAT（Immich 的 Postgres 就是明确不支持的）；
@@ -222,14 +236,20 @@ USB 外接盘除了盘体老化，还要**单独评估意外断连**——线松
 | **Immich** | 明确要求其 Postgres 数据 *never a network share of any kind* |
 | **PostgreSQL** | **明确允许把数据目录放 NFS**——但带条件，见下 |
 
-PostgreSQL 那两个条件必须一起满足，缺一条这个许可就不成立：
+**这里有两条，但它们的强度不一样，别混：**
 
-1. **客户端以 `hard` 挂载**。官方原话是 *"The only firm requirement for using NFS
-   with PostgreSQL is that the file system is mounted using the `hard` option."*
+1. **客户端以 `hard` 挂载 —— 这是上游的硬要求。**
+   官方原话：*"The only firm requirement for using NFS with PostgreSQL is that the
+   file system is mounted using the `hard` option."*
    代价是网络出问题时进程会无限期挂起，**所以还得配监控**。
-2. **NFS 服务端开 `sync` 导出**。否则客户端的 `fsync` 不保证真的落到服务端的
-   持久存储，官方说后果 *"could cause corruption similar to running with the
-   parameter `fsync` off"*。
+2. **NFS 服务端开 `sync` 导出 —— 这是上游的强烈建议，不是硬要求。**
+   官方写的是 *strongly recommended*（并限定 *"on systems where it exists
+   (mainly Linux)"*）；不开的话客户端的 `fsync` 不保证真的落到服务端持久存储，
+   后果 *"could cause corruption similar to running with the parameter `fsync` off"*。
+
+   📌 **本手册把第 2 条也列为准入条件——这是本手册更保守的政策，不是 PostgreSQL 的许可边界。**
+   理由很简单：`fsync` 有没有真正落盘，你在客户端**证明不了**。
+   你可以自己决定放宽，但要知道放宽的是我们的政策，不是上游的禁令。
 
 > 📌 **所以本层的规则是：NAS 上的数据库默认拒绝，但这是可以推翻的。**
 > 要推翻，得三件事都做到——**所选服务与数据库的上游明确支持**、

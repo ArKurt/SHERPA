@@ -192,17 +192,31 @@ options: [none, vm-openwrt, container-macvlan, dedicated-box, client-only]
 **怎么确认宿主真的锁住了**（★ 在宿主上跑，不是在 VM 里）：
 
 ```sh
-# Linux
-ip route show default
-# 期望: default via <主路由 IP> —— 不是那台 VM 的 IP
+EXPECT=<主路由 IP>        # ← 先填上，这一步不能省
 
+# Linux
+ACTUAL=$(ip -4 route show default | awk '{print $3; exit}')
 # macOS
-route -n get default | grep gateway
-# 期望: gateway: <主路由 IP>
+ACTUAL=$(route -n get default 2>/dev/null | awk '/gateway:/{print $2; exit}')
+
+[ -n "$ACTUAL" ] && [ "$ACTUAL" = "$EXPECT" ] \
+  && echo "OK：网关是 $ACTUAL" \
+  || echo "FAIL：实际是 ${ACTUAL:-（没有默认路由）}，期望 $EXPECT"
 ```
 
-⚠️ **这条要在主路由改完下发、并且宿主续租过一次之后再跑。**
-改之前跑必然是对的，证明不了任何事。
+⚠️ **必须做这个比较，不要只把网关打印出来看。**
+`route -n get default | grep gateway` 这种写法**只要存在任意默认网关就会退出 0**——
+哪怕它正指着那台 VM，命令也"成功"。一条无论如何都会通过的检查，比没有检查更危险。
+
+⚠️ **什么时候跑**：要在主路由改完下发**之后**，而且宿主已经重新拿过一次网络配置。
+分两种情况，别混：
+
+| 宿主的配置方式 | 怎么让它重新取一次 |
+|---|---|
+| **已经改成静态**（推荐做法） | 它本来就不吃 DHCP，**没有租约可续**。断网重连一次或重启，确认静态配置生效即可 |
+| **还在吃 DHCP**（尚未改静态） | 等它续租，或手工触发一次续租 / 重连，让新下发的网关落到它头上 |
+
+改之前跑这条必然通过，证明不了任何事。
 
 ## 回滚路径
 

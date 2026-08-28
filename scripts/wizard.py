@@ -14,9 +14,15 @@
 
 只用标准库，默认只监听 127.0.0.1。
 
-⚠️ 这条通道交回的清单是 agent 的开工依据，所以 /submit 必须带令牌：
-令牌每次启动随机生成、只注入进本进程服出去的那一份页面。没有它的话，
-本机任何进程都能抢先 POST 一份伪造的清单，等于直接给 agent 注入地面真相。
+⚠️ 这条通道交回的清单是 agent 的开工依据，所以 /submit 必须带令牌。
+
+令牌**不放在页面里**，放在 URL 的 fragment（`#t=...`）——浏览器不会把 fragment
+发给服务端，所以它只存在于「启动这个脚本的那个终端」和「被打开的那个浏览器标签」里。
+裸 `GET /` 拿到的页面里没有令牌。
+
+这一点是被实测打出来的：上一版把令牌注入进页面本身，于是任何能访问这个端口的
+进程只要先 GET 一次页面就能把令牌取走，再 POST 一份伪造清单——
+**令牌和它保护的资源由同一个无认证端点一起交付，就等于没有令牌。**
 """
 import argparse, hmac, http.server, json, secrets, socketserver, sys, threading, webbrowser
 from pathlib import Path
@@ -29,14 +35,26 @@ result = {"sheet": None}
 done = threading.Event()
 
 
+# 页面从 URL 的 fragment 里取令牌。fragment 不随请求发给服务端，
+# 所以这段脚本对所有请求者都一样，谁 GET 都拿不到令牌本身。
+_TOKEN_FROM_HASH = (
+    "<script>window.WIZARD_TOKEN="
+    "(location.hash.match(/(?:^|[#&])t=([A-Za-z0-9_-]+)/)||[])[1]||\"\";"
+    "</script>"
+)
+
+
 def page_with_token() -> bytes:
-    """把令牌注入页面。页面在 file:// 下读不到它，那条分支本来也不 POST。"""
+    """服出页面本身。令牌不在里面——页面自己去 location.hash 取。
+
+    没有 fragment 时 window.WIZARD_TOKEN 是空串，页面会退回「手工复制」分支，
+    这正是我们要的降级：拿不到令牌就别假装能自动交回。
+    """
     html = PAGE.read_text(encoding="utf-8")
-    inject = '<script>window.WIZARD_TOKEN=%s;</script>' % json.dumps(TOKEN)
     if "</head>" in html:
-        html = html.replace("</head>", inject + "</head>", 1)
+        html = html.replace("</head>", _TOKEN_FROM_HASH + "</head>", 1)
     else:
-        html = inject + html
+        html = _TOKEN_FROM_HASH + html
     return html.encode("utf-8")
 
 
@@ -103,8 +121,9 @@ def main():
     ap.add_argument("--no-browser", action="store_true", help="不自动开浏览器")
     ap.add_argument("--timeout", type=int, default=1800, help="等待秒数，默认 30 分钟")
     ap.add_argument("--bind", default="127.0.0.1",
-                    help="监听地址，默认只监听本机。改成 0.0.0.0 才能让别的机器打开"
-                         "（提交要带令牌，但页面内容会对同网段可见）")
+                    help="监听地址，默认只监听本机。改成 0.0.0.0 才能让别的机器打开——"
+                         "⚠ 那样同网段任何人都能取到这份清单的页面，"
+                         "且只要拿到带 #t= 的完整地址就能提交。别在不信任的网络上用")
     args = ap.parse_args()
 
     if not PAGE.exists():
@@ -115,12 +134,15 @@ def main():
     srv = socketserver.TCPServer((args.bind, 0), Handler)
     port = srv.server_address[1]
     host = "127.0.0.1" if args.bind in ("127.0.0.1", "0.0.0.0", "") else args.bind
-    url = f"http://{host}:{port}/"
+    base = f"http://{host}:{port}/"
+    url = f"{base}#t={TOKEN}"      # 带 fragment 的才是能用的那个地址
     srv.daemon_threads = True
     threading.Thread(target=srv.serve_forever, daemon=True).start()
 
     # 提示走 stderr，stdout 留给清单本身——这样 agent 可以直接管道接
     print(f"装机向导已启动：{url}", file=sys.stderr)
+    print("⚠ 这个地址要完整复制，包括 #t= 后面那段——它是交回清单的凭据，", file=sys.stderr)
+    print("  服务端不会把它发给任何人，所以只有拿到这行的人能提交。", file=sys.stderr)
     print("在浏览器里答完三轮问题，清单会自动回到这里。", file=sys.stderr)
     if args.no_browser and args.bind == "127.0.0.1":
         # 无头机器上这个地址只有本机打得开。用户坐在另一台电脑前的话，
@@ -128,7 +150,8 @@ def main():
         print(f"⚠ 这个地址只有本机能访问。用户在别的电脑上的话，让他们先跑：",
               file=sys.stderr)
         print(f"    ssh -N -L {port}:127.0.0.1:{port} <这台机器>", file=sys.stderr)
-        print(f"  然后在自己电脑的浏览器里打开 {url}", file=sys.stderr)
+        print(f"  然后在自己电脑的浏览器里打开上面那个完整地址（**要带 #t= 那一段**）",
+              file=sys.stderr)
     if not args.no_browser:
         opened = False
         try:

@@ -73,12 +73,17 @@ mount -t exfat -o uid=1000,gid=1000,fmask=0133,dmask=0022 /dev/sdX1 /挂载点
 # 1000:1000 换成目标容器实际运行的 UID:GID
 ```
 
-然后**从容器里**验收，不是从宿主：
+然后**用服务真实的身份**验收——不是 root，也不是宿主：
 
 ```sh
-docker compose exec <服务> sh -c 'touch /挂载点/.wtest && rm /挂载点/.wtest' && echo OK
+docker compose top <服务>          # 先看主进程的 UID，别用 exec 查（exec 默认是 root）
+docker compose exec --user <uid>:<gid> <服务> \
+  sh -c 'touch /挂载点/.wtest && rm /挂载点/.wtest' && echo OK
 # 期望: OK
 ```
+
+⚠️ **不带 `--user` 这条检查会以 root 跑**。实测过：容器在 entrypoint 里降权之后，
+不带 `--user` 输出 `OK`，而真正的服务进程写不进去——**假通过**。
 
 **这条路走不通的三种情况**（此时才考虑重新格式化，而格式化会擦盘，必须问用户）：
 

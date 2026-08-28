@@ -268,7 +268,7 @@ const $$ = s => [...document.querySelectorAll(s)];
    "exFAT 能不能跑数据库"这类判据留在手册里，由 AI 助手读手册决定。 */
 const DEVICES = [
   ["laptop","闲置笔记本","放着不用的旧本，自带电池相当于自带 UPS"],
-  ["mini","迷你主机 / 小主机","低功耗常开，最省心的形态"],
+  ["mini","迷你主机 / 小主机","低功耗、体积小"],
   ["nas","NAS","已经是存储设备，常年开机"],
   ["desktop","台式机","性能足，但通常更费电"],
   ["sbc","树莓派一类单板","省电，但性能和扩展性有限"],
@@ -292,7 +292,7 @@ const CONSTRAINTS = [
     hint:"这决定内网怎么起名字。这类设备大多不支持 .local 自动发现，只认 DNS。",
     opts:[["yes","有"],["no","只有电脑和手机"],["unknown","不确定"]] },
   { id:"domain", always:true, label:"你有自己的域名吗？",
-    hint:"有的话，内网用它的子域最省事——既不会和公网冲突，又能签真证书（内网上 HTTPS 需要它）。",
+    hint:"有的话，内网可以用它的子域。该不该用、怎么签证书，判据见 `layers/7-lan-addressing.md`。",
     opts:[["yes","有"],["no","没有"],["unknown","不知道算不算"]] },
   { id:"existing", always:true, label:"这台机器上现在已经跑着什么服务吗？",
     hint:"如果不是一台空机器，助手会先盘点已有的容器、端口和数据落点，再动网络——否则出了问题分不清是新装的坏了还是本来就坏。",
@@ -304,15 +304,15 @@ const CONSTRAINTS = [
           ["das-enclosure","外接硬盘柜（多盘位、独立供电）"],["nas","另一台 NAS（网络挂载）"]] },
   { id:"wan", when:s=>s.goals.includes("从外网访问")||s.goals.includes("远程访问自己的机器"),
     label:"路由器的 WAN 口拿到的是公网 IP 吗？",
-    hint:"在路由器状态页看 WAN 地址。以 100.64–100.127、10.、172.16–172.31、192.168 开头的都是运营商大内网，那样端口转发行不通。",
+    hint:"在路由器状态页看 WAN 地址。以 100.64–100.127、10.、172.16–172.31、192.168 开头的属于内网段，选「是大内网」。这串地址意味着什么、还能走哪条路，判据在层 6。",
     opts:[["public","是公网 IP"],["cgnat","是大内网"],["unknown","不确定"]] },
   { id:"noproxy_dev", when:s=>s.goals.includes("旁路由 / 全屋代理"),
     label:"有装不了客户端代理的设备要走代理吗？",
-    hint:"电视、游戏机、投影、IoT 这些设备本身装不了软件——这是旁路由唯一不可替代的场景。如果只有电脑和手机，各自装客户端更简单也更稳。",
+    hint:"电视、游戏机、投影、IoT 这些设备本身装不了软件。你的答案会原样进清单，层 2 用它定代理形态。",
     opts:[["yes","有（电视 / 游戏机 / IoT）"],["no","只有电脑和手机"],["unknown","不确定"]] },
   { id:"scope", when:s=>s.goals.includes("旁路由 / 全屋代理"),
     label:"想让谁走旁路由？",
-    hint:"全屋接管意味着旁路由变成单点故障——它一挂，全家断网，包括不在乎代理的人。",
+    hint:"答案决定改动面有多大。判据与风险见 `layers/2-gateway.md`。",
     opts:[["few","几台指定设备"],["all","全屋默认"],["unknown","还没想好"]] },
 ];
 
@@ -406,17 +406,17 @@ function vector(){
   const v = {};
   v.arch = "⟨待实测⟩";
   v.substrate = S.dev.includes("none") ? "[none]" : "⟨待实测：能不能跑虚拟机⟩";
+  /* G9：向导不替手册做技术裁决。gateway/addressing/ingress 只转录
+   "用户没选这个目标"这一事实（none）；选了的，裁决留给 agent 读层 2/7/6。
+   用户对这些约束问题的原话回答，全部在清单「一、用户告诉我们的」里逐字转录，
+   agent 读判据时看得到原料。漂移测试：层 2/6/7 改判据，这里不漂。 */
   const wantsGw = S.goals.includes("旁路由 / 全屋代理");
-  v.gateway = !wantsGw ? "none"
-    : S.con.noproxy_dev==="no" ? "client-only"
-    : S.con.noproxy_dev==="yes" ? "⟨待定：见层 2⟩" : "⟨待确认⟩";
+  v.gateway = !wantsGw ? "none" : "⟨待定：见层 2⟩";
   v.proxy = !wantsGw ? "none" : "⟨待定：按订阅格式选，见层 3⟩";
   v.storage = (S.con.disks?.length) ? "["+S.con.disks.join(", ")+"]" : "⟨待确认⟩";
-  v.addressing = S.con.hard_clients==="yes" ? "[ip-static, lan-dns]"
-    : S.con.hard_clients==="no" ? "[ip-static]  ⟨可加 mdns⟩" : "⟨待确认⟩";
-  v.ingress = !wantsIngress() ? "none"
-    : S.con.wan==="cgnat" ? "⟨tailscale 或 tunnel —— 大内网做不了端口转发⟩"
-    : "⟨待定：见层 6⟩";
+  v.addressing = (S.con.hard_clients==="yes"||S.con.hard_clients==="no")
+    ? "⟨待定：见层 7⟩" : "⟨待确认⟩";
+  v.ingress = !wantsIngress() ? "none" : "⟨待定：见层 6⟩";
   return v;
 }
 function buildSheet(){

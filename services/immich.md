@@ -70,9 +70,16 @@ exFAT 不存逐文件属主，得在**挂载时**把整卷映射成容器实际�
 做法见[层 5 的 exFAT 一节](../layers/5-storage.md#exfat-的限制到底在哪)。
 **别一上来就重新格式化**——那会擦掉盘上现有数据，属于必须问用户的事。
 
-⚠️ **但数据库那半不让步**：Immich 官方 requirements 写明
-*It will not work on any filesystem formatted in NTFS or ex/FAT/32*。
-挂载参数救不了数据库，因为缺的不是权限，是日志。
+⚠️ **但数据库那半不让步**：Immich 官方 requirements 对数据库位置
+（`DB_DATA_LOCATION`）写明 *It will not work on any filesystem formatted in NTFS or
+ex/FAT/32*——**这是官方对数据库的明确限制，不适用于照片库**。
+照片库那边官方只给到 *Recommended*（Unix 兼容、支持属主与权限的文件系统），
+所以本手册对它的要求是[层 5 的写入验收](../layers/5-storage.md#exfat-的限制到底在哪)，
+不是照搬数据库那条禁令。
+
+📌 **数据库为什么不放 exFAT，本手册的理由是风险政策 + 机制推理**
+（无逐文件属主、无硬链接、基础格式无日志），**不是 Immich 替我们给的原因**——
+官方页面没有说明它不工作的根因。别把"有日志就行"当成数据库的准入判据。
 
 → 所以标准做法是**拆开**：数据库在内置盘，照片库在大容量盘上。
 详见 [层 5](../layers/5-storage.md#组合示例不是推荐是说明判据怎么用)。

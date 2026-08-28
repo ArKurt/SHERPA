@@ -140,10 +140,11 @@ grep -rn <退役设备IP> /etc            # 配置文件里的硬编
 
 两种常见成因：
 
-1. **机器睡了。** 到点的任务会不会补跑**取决于调度器**：`cron` 跳过，
-   macOS `launchd` 会在唤醒时补跑（但多次错过**合并成一次**），
-   `systemd` timer 默认跳过、`Persistent=true` 才补
-   —— 见 [`ops/boot-persistence.md`](../ops/boot-persistence.md#睡过去错过的定时任务会不会补跑)
+1. **机器睡了，或者关了。** 这两种情况的结果**不一样**，而且还要看你用的哪类调度——
+   `cron` 一律跳过；launchd 只有 `StartCalendarInterval` 睡醒会跑；
+   systemd 的日历 timer 睡醒会补、关机期间要 `Persistent=true`。
+   **而且补跑常常是多次错过合并成一次。** 对照表见
+   [`ops/boot-persistence.md`](../ops/boot-persistence.md#错过的定时任务会不会补跑)
 2. **任务本身失败了** —— 盘满了、路径变了、凭证过期了，而没人在看
 
 ### 修法

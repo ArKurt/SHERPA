@@ -20,6 +20,20 @@
 > - **要知道手册现在怎么说 → 看正文。**
 > - **要知道这个说法的依据有多硬、当初为什么改 → 看这里。**
 >
+> ---
+>
+> 🔴 **摘录规则（这条是用一次真实错误换来的，别省）**
+>
+> **摘一句规范性语句时，必须把紧随其后的限定、例外、反向许可一起摘。**
+>
+> 代价实例：`.local` 那条只摘了 RFC 6762 的 “MUST be sent to the mDNS … multicast
+> address”，漏掉了下一句的 “MAY choose to look up such names concurrently via
+> …Unicast DNS”。附录据此建议正文"改得更强"，正文照做，**结论就从"冲突且不可预测"
+> 变成了不实的"根本不会生效"**。
+>
+> 📌 **一个专门用来防止误引上游的附录，因为截断了一句话，亲手生产了一次误引。**
+> `MUST 做 A` 从来不等于 `MUST NOT 做 B` —— 摘录时把这两件事分清楚。
+>
 > 逐条标了「状态」的是已经单独确认过落地的；没标的不代表没改，
 > 只代表没有逐条记录。**判断现行内容一律以正文为准。**
 >
@@ -534,10 +548,25 @@
 
 - **强度**：`[官方]`
 - **出处/依据**：<https://www.rfc-editor.org/rfc/rfc6762.html> §3
-- **原文/取证说明**：“Any DNS query for a name ending with '.local.' MUST be sent to the mDNS IPv4 link-local multicast address 224.0.0.251.”
-- **手册怎么说**：⚠️ **`.local` 是 mDNS 保留后缀（RFC 6762）。** **绝对不要**把 `.local` 拿来当普通 DNS 后缀用——两套解析机制会打架。
-- **是否需改写**：**是**（可以更强也更准确） 手册现在写"会打架"，**原文比这强**：符合规范的解析器**必须**把 `.local.` 查询发到组播地址， **根本不会去问你配的单播 DNS**。所以症状不是"两套抢"，是"**你的 DNS 压根收不到这个查询**"。 建议改成：按 RFC 6762 §3，`.local.` 查询**必须**走 mDNS 组播—— 你配的单播 DNS 收不到它。所以把 `.local` 当普通 DNS 后缀用，不是"可能冲突"，是**不会生效**。
-- **来源报告**：`S3`
+- **原文/取证说明**（⚠️ **两句必须一起读**）：
+  “Any DNS query for a name ending with '.local.' MUST be sent to the mDNS IPv4
+  link-local multicast address 224.0.0.251 (or its IPv6 equivalent FF02::FB).”
+  **紧接着的一句**：实现 “MAY choose to look up such names concurrently via other
+  mechanisms (e.g., Unicast DNS) and coalesce the results.”
+- **手册怎么说**（基线措辞）：`.local` 是 mDNS 保留后缀，绝对不要拿来当普通 DNS 后缀用——两套解析机制会打架。
+- **是否需改写**：**是（但不是往"更强"改）** ——
+  `MUST` 发组播 **不等于** `MUST NOT` 同时发单播。结论（别拿 `.local` 当私有单播后缀）
+  保留，理由应写成：**同一个后缀压着两套命名语义，谁的答案胜出取决于实现与时序，
+  结果不可预测。** 不要写成"单播 DNS 收不到""不会生效"。
+- **状态**：✅ 已落地（`layers/7-lan-addressing.md`）
+- **来源报告**：`S3`（原始标注）；**范围错误由第三轮 R1 查出并纠正**
+
+> 🔴 **这一条是本附录自己制造的错误，留作教训，不要删。**
+>
+> S3 只摘了 `MUST` 那一句、漏了紧随其后的 `MAY`，然后据此建议正文"改得更强"。
+> 正文照做了 —— **于是一个专门用来防止误引上游的机制，亲手生产了一次误引。**
+>
+> 由此立一条编辑规则，见本页开头的「摘录规则」。
 
 ### L111 · `home.arpa` 由 RFC 8375 为家庭网络保留，但签不了公开信任的证书
 

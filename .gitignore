@@ -6,6 +6,10 @@
 credentials.json
 secrets/
 
+# 向导生成的装机清单——含用户的设备与网络信息，不属于公开手册
+装机清单.md
+build-sheet*.md
+
 # 本地工作笔记（端口表、落点表这类现场信息不属于公开手册）
 NOTES.md
 notes/

@@ -82,10 +82,14 @@ services:  [jellyfin, navidrome, aria2, sunshine-moonlight,     # 原生跑
 
 ### 代价三：磁盘加密让开机自恢复不完整
 
-宿主开了全盘加密时，登录前用户级服务不运行。
-所以"**未登录状态下旁路由可用**"这个承诺给不了——冷启动后必须有人登录一次。
+这台机器开了 FileVault。**在有人解锁之前，机器停在解锁界面，什么都没在跑**——
+所以"未登录状态下旁路由可用"这个承诺给不了。做成系统级服务也绕不过去，
+卡住的是解锁本身。
 
-→ [`ops/boot-persistence.md`](../ops/boot-persistence.md)
+⚠️ **这条锚点定型时还没有 SSH 远程解锁。** Apple 芯片 + macOS 26 起，
+开了「远程登录」的机器可以在重启后从远程解锁——**同样的硬件，这个代价可能已经不成立了**。
+判据和另一个例外（`fdesetup authrestart`）见
+→ [`ops/boot-persistence.md`](../ops/boot-persistence.md#全盘加密会限制自恢复能力)
 
 ### 代价四：踩过的两个坑
 

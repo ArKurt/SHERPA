@@ -97,9 +97,9 @@ services:  [jellyfin, navidrome, aria2, sunshine-moonlight,     # 原生跑
 ### 代价四：踩过的两个坑
 
 - **裸核模式没关** —— 从隔离网络切桥接时忘了改回来，症状是"路由器自测能出海、
-  客户端全断"，折腾数小时。见 [层 3 坑 ①](../layers/3-proxy-stack.md)
+  客户端全断"，折腾数小时。见 [层 3 · 装完先确认裸核模式是关的](../layers/3-proxy-stack.md#装完先确认裸核模式是关的)
 - **组网工具的域名被 fake-ip 吃掉** —— 必须在切网关前解决。
-  见 [层 4 坑 ②](../layers/4-routing-dns.md)
+  见 [坑典 · 组网工具的域名被吃掉](../pitfalls/proxy-dns.md#之二--组网工具的域名被吃掉)
 
 ## 没有旁路由的话，这些代价哪些仍然适用
 

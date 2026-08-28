@@ -99,5 +99,5 @@ networksetup -listallnetworkservices
 ## 相关
 
 - 冷启动验收（迁移后必做）→ [`cold-start-acceptance.md`](cold-start-acceptance.md)
-- 幽灵路由在入口层的表现 → [层 6](../pitfalls/boot-ops.md#幽灵路由退役设备留下的影子)
+- 幽灵路由在入口层的表现 → [坑典 · 幽灵路由](../pitfalls/boot-ops.md#幽灵路由退役设备留下的影子)
 - 旧架构的完整案例 → [锚点 A](../blueprints/a-single-laptop.md)

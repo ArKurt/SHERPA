@@ -9,7 +9,7 @@
 ---
 id: nikki                      # 全仓唯一，kebab-case，与文件名一致
 name: Nikki (mihomo)           # 人类可读名
-layer: 3                       # 1-6；服务模块写 service
+layer: 3                       # 1-7；服务模块写 service
 requires:                      # 前置条件；全部满足才可选
   arch:      [x86_64, aarch64] # 缺省表示不限
   substrate: [vm]              # 层1 取值，见 layers/1-substrate.md

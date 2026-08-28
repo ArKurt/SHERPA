@@ -26,6 +26,26 @@ uname -srm
 | `Darwin ... x86_64` | Intel Mac | §2a |
 | `Linux ... x86_64` | 通用 x86 机器 / 软路由盒子 | §2b |
 | `Linux ... aarch64` | ARM 单板 / 部分 NAS | §2b |
+| **跑不了 `uname`**（提示不是内部命令） | **这是 Windows** | 见下 |
+
+**如果这台机器是 Windows** —— 闲置的旧机器很可能是，[层 1](layers/1-substrate.md) 自己也这么说。
+在 PowerShell 里查：
+
+```powershell
+$env:PROCESSOR_ARCHITECTURE          # AMD64 / ARM64
+systeminfo | findstr /C:"OS 名称" /C:"OS Name"
+```
+
+⚠️ **本手册的主路径要求类 Unix 系统。** Windows 有两条出路，
+**而它们的差别要在动手前讲清楚，因为其中一条会擦盘**：
+
+| 出路 | 代价 |
+|---|---|
+| **重装成 Linux** | ⚠️ **会擦掉盘上现有数据**。`needs_human`，必须问用户，而且要先确认数据已经转移走 |
+| **用它的 Linux 子系统（WSL2）** | 不擦盘，但多一层：网络是 NAT 在子系统里、开机自启和宿主休眠的行为都和原生不同。**旁路由不要走这条路**（拿不到独立的局域网 IP）；只跑几个服务的话可行，但把它当"另一台机器"来对待 |
+
+📌 **别默认用户愿意重装。** 那台机器上可能有他还在用的东西——
+先问清楚，再谈方案。
 
 NAS 另外确认厂商系统（QNAP QTS/QuTS、群晖 DSM、unRAID、TrueNAS）——它们的虚拟化与容器
 是厂商套件，不是通用方案。

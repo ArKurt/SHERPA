@@ -54,21 +54,14 @@ scripts/check.sh redaction
 ## 分支约定
 
 - **`develop`** —— 所有工作在这里。任何机器 `git pull` 就能接力。
-- **`main`** —— **从 develop 导出，不是合并进去的**，只放产品文件。
+- **`main`** —— 稳定状态。**develop 跑绿了就快进过去，没有导出脚本、没有要手工同步的差异。**
 
-⚠️ **铁律：main 只写不读，永远不往 develop 合并回去。**
-两个分支差一个目录，只要有一次是"手工同步"，它们就会开始漂——
-这本手册已经因为同一个原因砍掉过双语 README。**main 不是一个要维护的分支，它是一份导出。**
-
-刷新 main 的做法：
-
-```sh
-git checkout main
-git checkout develop -- 00-probe.md AGENTS.md CLAUDE.md README.md LICENSE \
-    layers services ops pitfalls advanced appendix blueprints archive \
-    scripts data wizard.html wizard.template.html .gitignore
-git commit -m "Sync product tree from develop"
-```
+> 📌 **这套约定原来复杂得多**：main 曾计划做成"从 develop 导出、只写不读"，
+> 因为 develop 上有 `reviews/` 这类不该进产品的东西。
+> **审查材料整个移出仓库之后，那个差异消失了，规矩也就不必要了。**
+>
+> 少一条要维护的规矩，就少一处会漂的地方——这本手册已经因为
+> "两处要人工同步"砍掉过双语 README。
 
 📌 **仓库转公开时所有分支都是公开的。** 所以"哪个分支干净"不构成隐藏手段——
 **脱敏要求对所有分支同样适用。**

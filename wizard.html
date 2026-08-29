@@ -256,7 +256,7 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
 <script>
 const CATALOG = {
-  "commit": "75e76bb",
+  "commit": "fa6716c",
   "goals": [
     "下载",
     "从外网访问",
@@ -1076,7 +1076,7 @@ function buildSheet(){
   step("★ 定下每个服务的数据落点","layers/5-storage.md","★ 装服务前必须完成");
   /* G9+M1 同批：向导不再推导 gateway（那是要读了层 2 才能做的裁决），
      施工序也就不能再消费 `client-only` 这个违例产物——否则推导一删、
-     待定恒真，旁路由三步会无条件排（见 reviews/wizard-fixes-zcode.md 的推演）。
+     待定恒真，旁路由三步会无条件排。
      改排"决策点"：把用户的相关原话与判据章节交给助手裁决，两条路各自
      指到层几，不排优劣、不替手册下结论。 */
   if(v.gateway !== "none"){

@@ -289,10 +289,10 @@
 ### L57-61 · 自动组按延迟挑节点……Anthropic（Claude）屏蔽香港，OpenAI 有 类似限制
 
 - **强度**：[官方]（支持地区）+ [实测]（一套分流环境）+ [推理]（“屏蔽”动作）
-- **出处/依据**：https://www.anthropic.com/supported-countries ； https://help.openai.com/en/articles/5347006-openai-api-supported-countries-and-territories ；作者共享知识库的现场记录《Nikki 规则覆写（mixin）与服务固定落地》（非公开记录）
-- **原文/取证说明**：Anthropic："Countries, regions, and territories where we currently offer commercial API access"，其清单不含 Hong Kong；OpenAI："If a location is not included in the list below, our API is not supported there."，清单也 不含 Hong Kong。现场记录环境为 `.4` ImmortalWrt VM、Nikki/mihomo、 2026-08-27，原文为 "Auto 是 fallback 组、香港排第 0 位"，并记录 "Claude 流量 ... → Claude → Singapore" 与兜底出口 Hong Kong。官方没有 “所有产品按香港出口 IP 一律屏蔽”的原文。
+- **出处/依据**：https://www.anthropic.com/supported-countries ； https://help.openai.com/en/articles/5347006-openai-api-supported-countries-and-territories ；另有作者的一次实测环境（2026-08，未公开）
+- **原文/取证说明**：Anthropic："Countries, regions, and territories where we currently offer commercial API access"，其清单不含 Hong Kong；OpenAI："If a location is not included in the list below, our API is not supported there."，清单也 不含 Hong Kong。作者在一套 Nikki/mihomo 环境上实测到：兜底的自动组可能落到香港，因此把 Claude 单独钉到了一个支持地区并验证了分流链。官方没有“所有产品按香港出口 IP 一律屏蔽”的原文。
 - **手册怎么说**："自动组按延迟挑节点……Anthropic（Claude）屏蔽香港，OpenAI 有 类似限制"
-- **是否需改写**：**是** —— 建议：「截至 2026-08-28，Anthropic 与 OpenAI API 的官方 支持地区清单均不含香港；官方措辞是‘不在支持范围’，不是‘屏蔽’。在 2026-08-27 的 Nikki/mihomo 实测环境中，兜底 Auto 可落香港，因此把 Claude 单独钉到新加坡 并验证了分流链；不要把这次实测升级为所有产品/账号/出口的永久定律。」
+- **是否需改写**：**是** —— 建议：「截至 2026-08-28，Anthropic 与 OpenAI API 的官方 支持地区清单均不含香港；官方措辞是‘不在支持范围’，不是‘屏蔽’。实测中兜底的自动组 可能落到不受支持的地区，所以要把这类服务单独钉到一个支持地区并验证分流链； 不要把一次实测升级为所有产品/账号/出口的永久定律。」
 - **来源报告**：`S1`
 
 ### L92-95 · 域名少而稳定的服务（一年变不了一次），照官方 allowlist 写死后缀

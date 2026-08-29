@@ -68,7 +68,6 @@ NAS      →  服务器
 | [ops/](ops/) | 开机自恢复、冷启动验收、备份、凭证、**多人共用与交接**、唤醒、迁移退役 |
 | [advanced/](advanced/) | 常驻 AI harness（可选） |
 | [**pitfalls/**](pitfalls/) | **排障区** —— 出问题了按症状查这里 |
-| [archive/](archive/) | 历史素材，**不是现行方案** |
 
 ### 七层主干
 

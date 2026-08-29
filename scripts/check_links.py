@@ -47,8 +47,7 @@ def outside_code(text):
             out.append(ln)
     return "\n".join(out)
 
-# archive/ 是历史原文，不改，也不参与内链检查。
-SKIP_DIRS = {"archive"}
+SKIP_DIRS = set()
 
 for p in sorted(ROOT.rglob("*.md")):
     if ".git" in p.parts or SKIP_DIRS & set(p.parts):

@@ -25,3 +25,6 @@ scratch/
 # Python
 __pycache__/
 *.pyc
+
+# 作者的私有脱敏词表（见 scripts/.denylist.example）
+scripts/.denylist

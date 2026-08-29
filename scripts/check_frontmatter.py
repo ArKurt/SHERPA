@@ -144,7 +144,7 @@ import re as _re
 BADCH = _re.compile(r'[\u2460-\u2473\u24b6-\u24ea]|[\U0001F000-\U0001FAFF]|[\u2600-\u27BF]|\ufe0f')
 n = len(fails)
 for p in sorted(ROOT.rglob("*.md")):
-    # archive/ 是历史原文，reviews/ 是审查者写的——都不受手册规范约束
+    # archive/ 是历史原文，不受手册规范约束
     if ".git" in p.parts or "archive" in p.parts or "reviews" in p.parts:
         continue
     infence = False

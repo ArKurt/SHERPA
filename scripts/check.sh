@@ -45,7 +45,7 @@ check_redaction() {
   local unknown
   # archive/ 是历史原文，其中的链接保持原样，不纳入白名单管理
   unknown=$(grep -rhoE 'https?://[A-Za-z0-9._-]+' --include='*.md' \
-      --exclude-dir=archive --exclude-dir=reviews . 2>/dev/null \
+      --exclude-dir=archive . 2>/dev/null \
     | sed -E 's|https?://||' | sort -u \
     | grep -vE '^(192\.0\.2\.|198\.51\.100\.|203\.0\.113\.)' \
     | grep -vE '(^|\.)example\.(com|org|net)$' \
@@ -59,7 +59,7 @@ check_redaction() {
   # 这是提示不是失败：预先登记一个即将用到的域名是合理的。
   local stale used_domains
   used_domains=$(grep -rhoE 'https?://[A-Za-z0-9._-]+' --include='*.md' \
-      --exclude-dir=archive --exclude-dir=reviews . 2>/dev/null \
+      --exclude-dir=archive . 2>/dev/null \
     | sed -E 's|https?://||' | sort -u)
   # 上一行有说明注释的条目跳过——那是"我知道它没被 .md 引用，理由如下"的显式声明。
   # 不跳的话会有一条永远存在的黄警，而一条永远存在的"注意"会训练所有人忽略"注意"。
@@ -74,7 +74,7 @@ check_redaction() {
   # 内部主机名 / 内网标识 —— 公开仓库里不该出现
   hits=$(grep -rniE '\b(<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>|<已脱敏>)\b' \
          --include='*.md' --include='*.html' --include='*.py' --include='*.sh' --include='*.json' . 2>/dev/null \
-         | grep -vE '^\./(archive/|reviews/|scripts/check\.sh)' || true)
+         | grep -vE '^\./(archive/|scripts/check\.sh)' || true)
   [ -z "$hits" ] && ok "无内部主机名" || { bad "发现内部主机名"; echo "$hits" | head -10; }
 
   # 裸写的真实域名（不在 URL 里的），仍按后缀拦

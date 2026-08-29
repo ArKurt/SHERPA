@@ -47,10 +47,8 @@ def outside_code(text):
             out.append(ln)
     return "\n".join(out)
 
-# reviewer 写的报告不参与内链检查：它们引用路径的方式是随手的
-# （常按被审文件的视角写相对路径），不是手册的导航结构，
-# 修它们既没价值又会掩盖真正的断链。archive/ 同理——原文不改。
-SKIP_DIRS = {"reviews", "archive"}
+# archive/ 是历史原文，不改，也不参与内链检查。
+SKIP_DIRS = {"archive"}
 
 for p in sorted(ROOT.rglob("*.md")):
     if ".git" in p.parts or SKIP_DIRS & set(p.parts):

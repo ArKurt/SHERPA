@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>anyserver · 装机向导</title>
+<title>SHERPA · 装机向导</title>
 <style>
 /* ─────────────────────────────────────────────────────────
    蓝图美学：深底、细网格、等宽字为主、直角、锐利。
@@ -243,7 +243,7 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
   </section>
 
   <footer>
-    <span id="ftr">anyserver</span>
+    <span id="ftr">SHERPA</span>
     <span>本页不联网 · 不上传任何信息</span>
   </footer>
 </div>
@@ -256,7 +256,7 @@ footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
 
 <script>
 const CATALOG = {
-  "commit": "fa6716c",
+  "commit": "eb8e397",
   "goals": [
     "下载",
     "从外网访问",
@@ -958,7 +958,7 @@ function buildSheet(){
   L.push(`needs_probe:    [${probe.join(", ")}]   # 机器能查——先实测，别猜`);
   L.push(`needs_decision: [${undecid.join(", ")}]   # 要读手册的判据才能定`);
   L.push(`---`);
-  L.push(``,`# 装机清单 · anyserver`);
+  L.push(``,`# 装机清单 · SHERPA`);
   L.push(``,`生成于 ${now} · 基于手册 ${CATALOG.commit}`);
   L.push(``,`> 这份清单是【向导问卷的产物】，记录的是用户的回答，**不含任何技术判据**。`);
   L.push(`> 判据全部在手册里。请先读仓库根目录的 \`AGENTS.md\`，再照本清单开工。`);
@@ -1155,7 +1155,7 @@ function sync(){
     : S.step===1 ? (S.svcs.length?`已选 ${S.svcs.length} 个服务`:"可以一个都不选")
     : S.step===2 ? `${Object.keys(S.con).length} / ${activeConstraints().length} 已答`
     : "";
-  $("#ftr").textContent = `anyserver · 手册 ${CATALOG.commit} · ${CATALOG.services.length} 个可选服务`;
+  $("#ftr").textContent = `SHERPA · 手册 ${CATALOG.commit} · ${CATALOG.services.length} 个可选服务`;
 }
 /* 由 scripts/wizard.py 服起来时是同源 http，页面可以直接把清单 POST 回去；
    双击 file:// 打开时不行（源是 null，浏览器拦），退回手动复制。

@@ -121,7 +121,7 @@ scripts/check.sh redaction
 > **以后再改写历史，先 `git grep` 看看命中都在哪些文件里再写规则。**
 >
 > 📌 **备份**：改写前打了 `git bundle`（全 ref）+ `.git` 目录副本，
-> 存在 `~/anyserver-backup-<时间戳>/`，已 `git bundle verify` 校验。
+> 存在仓库外的备份目录里，已 `git bundle verify` 校验。
 > **确认无误之前不要删。**
 >
 > ⚠️ **其它机器上的 clone 全部失效**——历史对不上，`git pull` 会失败。

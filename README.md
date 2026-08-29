@@ -1,4 +1,8 @@
-# anyserver
+# SHERPA
+
+> **S**erver · **H**andbook · **E**quipment-Reuse · **P**roxy · **A**gent
+>
+> 旧设备到家庭服务器的半自动施工手册——**接力，不接管。**
 
 **把你手上任何一台机器，变成一台真能用的家庭 / 工作室服务器。**
 

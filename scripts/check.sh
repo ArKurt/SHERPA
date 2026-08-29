@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# anyserver 仓库自检
+# SHERPA 仓库自检
 #   用法: scripts/check.sh [redaction|frontmatter|links|all]
 set -uo pipefail
 cd "$(dirname "$0")/.."
